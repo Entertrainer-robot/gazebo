@@ -1,0 +1,20 @@
+<launch>
+
+
+  <!-- Load up the Environment -->
+  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch" />
+
+  <!-- Load up the Gmapper -->
+
+
+  <!-- Load up the Test Node -->
+  <node name="test" pkg="entertrainer_test" type="test" output="screen" />
+
+  <!--  Set the 3d Sensor variable -->
+
+<!--   <env name="TURTLEBOT_3D_SENSOR" value="kinect" />
+
+ <include file="$(find turtlebot_navigation)/launch/gmapping_demo.launch" >
+  </include>-->
+
+</launch>
