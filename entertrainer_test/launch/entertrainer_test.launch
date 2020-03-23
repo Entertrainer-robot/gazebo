@@ -2,19 +2,22 @@
 
 
   <!-- Load up the Environment -->
-  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_house.launch" />
+  <include file="$(find entertrainer_test)/launch/entertrainer_house.launch" />
 
   <!-- Load up the Gmapper -->
 
 
   <!-- Load up the Test Node -->
+  <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
   <node name="test" pkg="entertrainer_test" type="test" output="screen" />
 
-  <!--  Set the 3d Sensor variable -->
+<!--  <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" />
 
-<!--   <env name="TURTLEBOT_3D_SENSOR" value="kinect" />
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" />-->
 
- <include file="$(find turtlebot_navigation)/launch/gmapping_demo.launch" >
-  </include>-->
+  <param name="ball_description" command="cat '$(find entertrainer_test)/urdf/tennis_ball.urdf'" />
+
+  <node name="tennis_ball_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-urdf -param ball_description -model tennis_ball" />
 
 </launch>

@@ -8,15 +8,14 @@ import matplotlib.pyplot as plt
 from math import *
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_ros.gazebo_interface import spawn_sdf_model_client
-#from gazebo_msgs.srv import *
-from gazebo_msgs.msg import ModelState
-from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.srv import *
 
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
-entertrainer_name = "turtlebot3"
+entertrainer_name = "turtlebot3_waffle"
 ball_name = "tennis_ball"
+
 
 class BasicEntertrainerController(object):
 
@@ -30,12 +29,10 @@ class BasicEntertrainerController(object):
         self.get_world_properties = None
         self.get_model_properties = None
         self.get_model_state = None
-        self.set_model_state = None
-
-        self.launch_ball = False
-        self.in_launcher = True
-
         self.objects = {}
+        self.launch_ball = True
+        self.launched = False
+
         if(rate != 0):
             update_timer = rospy.Timer(rospy.Duration(rate), self.basic_movement)
 
@@ -62,25 +59,17 @@ class BasicEntertrainerController(object):
             except rospy.ROSException:
                 print('/gazebo/get_model_properties service is unavailable')
 
-        if self.set_model_state is None:
-            try:
-                rospy.wait_for_service('/gazebo/set_model_state',timeout=0.1)
-                self.set_model_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
-            except rospy.ROSException:
-                print('/gazebo/set_model_state service is unavailable')
-
     def basic_movement(self, event=None):
         self.get_proxy_handles()
 
         _position = None
         _twist = None
         _pose = None
-
         try:
             msg_world = self.get_world_properties()
             if(msg_world.success):
 #                for model in msg_world.model_names:
-#                    rospy.loginfo('Model ='+ str(model))
+#                    if(model == entertrainer_name):
                 model_properties = self.get_model_properties(entertrainer_name)
                 if(model_properties.success):
                     model_state = self.get_model_state(entertrainer_name, "")
@@ -88,44 +77,31 @@ class BasicEntertrainerController(object):
                         _pose = model_state.pose
                         _position = model_state.pose.position
                         _twist = model_state.pose.orientation
-                        rospy.loginfo('Position ='+ str(_position.x) +' '+ str(_position.y) +' '+ str( _position.z))
-                        rospy.loginfo('Ball Launch Flag ' + str(self.launch_ball) + ' launched = '+ str(self.in_launcher))
+                        rospy.loginfo('Position ='+ str(_position.x) + str(_position.y) + str( _position.z))
+
                         if(self.launch_ball):
-                            if(self.in_launcher):
+                            if(not self.launched):
                                 state_msg = ModelState()
                                 state_msg.model_name = 'tennis_ball'
                                 state_msg.pose = _pose
+                                rospy.wait_for_service('/gazebo/set_model_state')
                                 try:
-                                    resp = self.set_model_state( state_msg )
-                                    rospy.loginfo('Setting Ball Position ='+ str(state_msg.pose.position.x) +' '+ str(state_msg.pose.position.y) +' '+ str( state_msg.pose.position.z) + ' Repsonse = ' + str(resp))
+                                    set_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
+                                    resp = set_state( state_msg )
                                 finally:
                                     pass
-                                self.in_launcher = False
-                        else:
-                            if(self.in_launcher):
-                                state_msg = ModelState()
-                                state_msg.model_name = ball_name
-                                state_msg.pose = _pose
-                                state_msg.pose.position.z += 0.15
-                                try:
-                                    resp = self.set_model_state( state_msg )
-                                    rospy.loginfo('Setting Ball Position ='+ str(state_msg.pose.position.x) +' '+ str(state_msg.pose.position.y) +' '+ str( state_msg.pose.position.z) + ' Repsonse = ' + str(resp))
-                                finally:
-                                    pass
+                                self.launched = True
 
 
-        finally:
-            pass
 
-        try:
-            model_state = self.get_model_state(ball_name, "")
-            if(model_state.success):
-                _position = model_state.pose.position
-                rospy.loginfo('-> Checked the Ball Position ='+ str(_position.x) +' '+ str(_position.y) +' '+ str( _position.z))
+
+
         finally:
             pass
 
         twist = Twist()
+
+
 
         twist.linear.x = 0.22
         twist.angular.z = 0.22
@@ -139,7 +115,7 @@ class BasicEntertrainerController(object):
 if __name__ == '__main__':
     try:
         print("Starting Program")
-        b = BasicEntertrainerController(0.1)
+        b = BasicEntertrainerController(0.5)
         rospy.spin()
 
     except rospy.ROSInterruptException:
