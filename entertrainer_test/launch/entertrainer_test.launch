@@ -11,9 +11,9 @@
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
   <node name="test" pkg="entertrainer_test" type="test" output="screen" />
 
-<!--  <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" />
+<!---->  <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" />
 
-  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" />-->
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" />
 
   <param name="ball_description" command="cat '$(find entertrainer_test)/urdf/tennis_ball.urdf'" />
 

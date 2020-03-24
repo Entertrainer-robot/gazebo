@@ -128,7 +128,7 @@ class BasicEntertrainerController(object):
         twist = Twist()
 
         twist.linear.x = 0.22
-        twist.angular.z = 0.22
+        twist.angular.z = 0.11
         self._cmd_pub.publish(twist)
 
         rospy.loginfo('Twisting the robot!')
