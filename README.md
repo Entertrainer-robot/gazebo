@@ -1,7 +1,9 @@
 Developed with ros-melodic
 
 Create a folder that is your catkin workspace, here we will use {catkin_ws}
+
 We will paraphrase the following link http://wiki.ros.org/catkin/Tutorials/create_a_workspace
+
 > mkdir -p {catkin_ws}/Service
 
 > cd {catkin_ws}/src
