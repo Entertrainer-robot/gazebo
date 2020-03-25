@@ -10,7 +10,7 @@ We will paraphrase the following link http://wiki.ros.org/catkin/Tutorials/creat
 
 > git clone https://github.com/Entertrainer-robot/gazebo.git
 
-# make sure to have the following repositories in your {catkin_ws}}/src
+# Make sure to have the following repositories in your {catkin_ws}}/src
 > git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
 
 > git clone https://github.com/ROBOTIS-GIT/turtlebot3.git
@@ -19,7 +19,7 @@ We will paraphrase the following link http://wiki.ros.org/catkin/Tutorials/creat
 
 > git clone https://github.com/ros-perception/slam_gmapping.git
 
-# build the workspace
+# Build the workspace
 > cd {catkin_ws}
 
 > catkin_make
