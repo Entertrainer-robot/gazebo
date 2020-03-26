@@ -6,6 +6,9 @@ Make sure to have the following packages installed
 4) ros-melodic-turtle-tf2
 5) ros-melodic-turtlesim
 
+Make sure to also export the turtle model
+run 'export TURTLEBOT3_MODEL=waffle'
+
 Create a folder that is your catkin workspace, here we will use ~/catkin_ws
 
 We will paraphrase the following link http://wiki.ros.org/catkin/Tutorials/create_a_workspace
