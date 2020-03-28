@@ -193,12 +193,12 @@ class TrajectoryPlanner:
         gets the YZ map from the forward facing camera
         '''
         pass
-    
+
     def rectify_map(self,yz_map,xy_map):
         '''
         rectifys the XY mao and YZ map to create a pseudo point cloud in front of the robot
         '''
-        pass
+        return None
 
     def check_map_traj_collis(self, coords1, coords2):
         '''
@@ -221,6 +221,7 @@ class TrajectoryPlanner:
         Main controller for the trajectory planner
         '''
         r = rospy.Rate(rate)
+        point_cloud_map = None
 
         while True:
             if not rospy.is_shutdown():
