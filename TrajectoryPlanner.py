@@ -136,6 +136,7 @@ class TrajectoryPlanner:
             vel = self.FM1.calc_lnch_vel(d,self.lnchr_angle)
 
             traj_gens,traj_tofs = self.create_trej_gens(vel)
+            
             for traj in traj_gens:
                 print(next(traj))
             print(traj_tofs)
