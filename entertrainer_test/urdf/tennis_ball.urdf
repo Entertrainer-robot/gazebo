@@ -1,24 +1,50 @@
 <robot name="tennis_ball">
-  <link name="ball">
+  <link name="ball_body">
     <inertial>
       <origin xyz="0 0 0" />
       <mass value="0.0585" /><!--1.76oz, 0.0498 kg-->
-      <inertia  ixx="1.0" ixy="0.0"  ixz="0.0"  iyy="100.0"  iyz="0.0"  izz="1.0" />
+      <inertia
+        ixx="0.001"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="0.001"
+        iyz="0.0"
+        izz="0.001" />
     </inertial>
     <visual>
       <origin xyz="0 0 0"/>
       <geometry>
-        <sphere radius="0.01905"/>
+        <sphere radius="0.01905"/> <!--Meters-->
       </geometry>
     </visual>
     <collision>
       <origin xyz="0 0 0"/>
       <geometry>
-        <sphere radius="0.01905"/>
+        <sphere radius="0.01905"/> <!--Meters-->
       </geometry>
+      <surface>
+        <bounce>
+          <restitution_coefficient>0.5</restitution_coefficient>
+          <threshold>0.1</threshold>
+        </bounce>
+        <contact>
+          <ode>
+            <max_vel>10</max_vel>
+          </ode>
+        </contact>
+      </surface>
     </collision>
   </link>
-  <gazebo reference="ball">
+  <gazebo reference="ball_body">
     <material>Gazebo/Yellow</material>
+    <!--<dampingFactor>0.05</dampingFactor>
+      <gravity>1</gravity>
+       <minDepth>0.001</minDepth>
+       <maxVel>10</maxVel>
+       <mu1>1</mu1>
+       <mu2>1</mu2>
+       <kp>1e+10</kp>
+       <kd>1.0</kd>
+       <maxContacts>10</maxContacts>-->
   </gazebo>
 </robot>

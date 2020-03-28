@@ -11,6 +11,8 @@
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
  <node name="test" pkg="entertrainer_test" type="test" output="screen" />
 
+ <!--
+ -->
  <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" />
 
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" />
@@ -19,6 +21,9 @@
 
   <node name="tennis_ball_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param ball_description -model tennis_ball" />
 
+
+  <param name="dog_description" command="cat '$(find entertrainer_test)/urdf/dog.urdf'" />
+  <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param dog_description -model dog -x -3 -y -2 -z 0 " />
 
 <!--  <param name="dog_description" command="cat '$(find little_dog)/LittleDog.urdf'" />
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model littledog -x -3 -y -2 -z 0 -param dog_description" />
