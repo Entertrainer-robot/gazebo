@@ -83,7 +83,16 @@ class Flight_Model_1:
         Returns the max projectile dist it will reach
         '''
         return ((v_0**2)/(-1*g))*np.sin(2*theta)
-    
+
+    def calc_launch_impulse(self,):
+        '''
+        calculates impulse force of the launcher
+        '''
+        impulse = 0
+
+        return impulse 
+         
+
     def cal_angle_reach(self,g,d,v_0):
         '''
         Returns the angle of reach required to trav_0 to trav_0 a distance in the X

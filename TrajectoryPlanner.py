@@ -15,6 +15,8 @@ from gazebo_ros.gazebo_interface import spawn_sdf_model_client
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
+import pcl
+
 class Ball:
     '''
     Ball class used to simulate a tennis ball.
@@ -63,17 +65,23 @@ class TrajectoryPlanner:
         self.MAX_Y = 20
         self.MIN_X = 0
         self.MIN_Y = 0
+
         #
         self.energy_threshold = 2500 #joules
+
         #
         self.lnchr_angle = self.FM1.deg_2_rad(lnch_ori)
 
-        self.max_vel = 15
+
+        self.max_vel = 15 #m/s
 
         #tennis ball diameter (cm)
         self.tDiameter = 3.81
+
         #tennis ball mass (g)
         self.tMass = 49.8
+
+        self.max_force =  3.33 #(newtons)
 
     def get_proxy_handles(self):
         pass
@@ -98,13 +106,13 @@ class TrajectoryPlanner:
         Needs to get the angle from teh ball launcher
         '''
         
-        
         return self.lnchr_angle
     
     def get_dead_rkn_dist(self):
         '''
         placeholder function to get dead reckoning linear distance infront of 
         the robot
+
         '''
         launch_low = 0.01 #m 
         return np.random.uniform(launch_low,self.MAX_RANGE_X**2)
@@ -164,10 +172,9 @@ class TrajectoryPlanner:
             #     break
             # else:
             #     d -=0.01
-        
-
+            
         # print('distance',d,'\nvelocity',vel,'\nenergy',eng,'\nlaunch_angle',self.lnchr_angle)
-        
+
         #Create a trajectory generator
         self.FM1.trajectory_seq(v_0 = vel,theta = self.lnchr_angle)        
         trajectoryPath = None
@@ -204,8 +211,16 @@ class TrajectoryPlanner:
 
     def publish_trajectory(self):
         '''
+        
         '''
         pass
+
+    def get_balls_loaded(self):
+        '''
+
+        '''
+        balls_loaded = 3
+        return balls_loaded
 
     def Traj_Controller(self,rate):
         '''
@@ -253,7 +268,7 @@ class TrajectoryPlanner:
 
             # 7. Look at the trajectories and pick the one with the medium distance to travel in the X direction
 
-            # 8. publish command to ball launcher to set angle and launch velocity
+            # 8. publish command to ball launcher to set angle, impulse, and launch velocity
 
             # 9. decrement balls counter
 
