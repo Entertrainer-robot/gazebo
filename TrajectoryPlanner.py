@@ -17,7 +17,7 @@ from geometry_msgs.msg import Twist
 
 class Ball:
     '''
-    ball class used to simulate a tennis ball
+    Ball class used to simulate a tennis ball.
     '''
     def __init__(self):
         
@@ -63,10 +63,9 @@ class TrajectoryPlanner:
         self.MAX_Y = 20
         self.MIN_X = 0
         self.MIN_Y = 0
-        
         #
         self.energy_threshold = 2500 #joules
-        
+        #
         self.lnchr_angle = self.FM1.deg_2_rad(lnch_ori)
 
         self.max_vel = 15
@@ -98,18 +97,9 @@ class TrajectoryPlanner:
         '''
         Needs to get the angle from teh ball launcher
         '''
+        
+        
         return self.lnchr_angle
-    
-    def calc_lnch_vel(self,d):
-        '''
-        placeholder function for spring calculation from distance to velocity
-        
-        waiting on dan/troy to finish mechanical calculations
-        '''
-        
-        spring_low = 1 #m/s
-        spring_high = 22 #m/s
-        return np.random.uniform(spring_low,spring_high)
     
     def get_dead_rkn_dist(self):
         '''
