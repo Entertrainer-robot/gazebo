@@ -83,7 +83,14 @@ class Flight_Model_1:
         Returns the max projectile dist it will reach
         '''
         return ((v_0**2)/(-1*g))*np.sin(2*theta)
-    
+
+    def calc_launch_impulse(self,dist = 0,t = 0.1, g = 9.81,m = 0.498,theta = 0):
+        '''
+        calculates impulse force of the launcher
+        '''
+        return (m*np.sqrt((g*dist)/(np.sin(2*theta))))/(t) 
+         
+
     def cal_angle_reach(self,g,d,v_0):
         '''
         Returns the angle of reach required to trav_0 to trav_0 a distance in the X
@@ -104,11 +111,12 @@ class Flight_Model_1:
         #initial parameter
         time = 0
         while True:
-            yield np.array([time,
-                           v_0*np.cos(theta)+a_x*time,#horzontal speed
-                           v_0*np.sin(theta)+a_y*time,#vertical speed
-                           p_x + v_0*time*np.cos(theta) + a_x*time**2,#horzontal disp
-                           p_z + v_0*time*np.sin(theta) + 0.5*a_y*time**2])#vertical disp
+            yield time, p_x + v_0*time*np.cos(theta) + a_x*time**2,p_z + v_0*time*np.sin(theta) + 0.5*a_y*time**2
+                # np.array([time,
+                #            v_0*np.cos(theta)+a_x*time,#horzontal speed
+                #            v_0*np.sin(theta)+a_y*time,#vertical speed
+                #            p_x + v_0*time*np.cos(theta) + a_x*time**2,#horzontal disp
+                #            p_z + v_0*time*np.sin(theta) + 0.5*a_y*time**2])#vertical disp
             time+=0.01
 
     def calc_lnch_vel(self,x_f,theta, g = -9.81,x_i = 0):
