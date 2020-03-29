@@ -29,4 +29,6 @@
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model littledog -x -3 -y -2 -z 0 -param dog_description" />
 -->
 
+  <node name="collision_checker" pkg="entertainer_pcl" output="screen" />
+
 </launch>
