@@ -15,7 +15,7 @@ class TrajectoryPlanner:
     '''
     Calculates mulitple trajectories using the physical properties of the launcher
     '''
-    def __init__(self, first_run = True, balls_loaded = None, ori = 0, lnch_ori = 45,wait_timer = 1):
+    def __init__(self, first_run = True, balls_loaded = None, ori = 0, lnch_ori = 45,wait_timer = 2):
 
         #------ ROS nodes,pubs, and subs
         #create a ros publisher
@@ -148,7 +148,8 @@ class TrajectoryPlanner:
         Returns bool, trajectory label
         '''
         #velocity to launch 
-        vel = 0 
+        vel = 0
+
         # impact energy
         eng = 0
 
@@ -172,29 +173,25 @@ class TrajectoryPlanner:
                 pose_list.append(self.pack_pose(next(traj_gen)))
 
             tic = rospy.get_time() #Send data to pcl module, wait 5 seconds for a response
+            pcl_check = False
             while toc-tic<self.max_time: #while elapsed time is less than the max time  
                 #time elapsed
                 toc = rospy.get_time()
                 #publish the trajectory
                 self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
-                #placeholder function and logic
-                pcl_check = None            
-                # if pcl_check>0: there is a collision
+                if self.is_collision: #there is a collision
+                    pcl_check = True
 
-                #4. Create a point cloud in front of the robot
-                         
-                #6. Trace trajectories along the path if 
+            #if the trajectory checker is good, break the loop 
+            if (pcl_check != True):
+                return [True, traj_gens[0][traj_index],vel,eng]
+            elif pcl_check == True:
 
-                # if trajectory hit a object, check to see if it has hit the ground. 
+                return [False, traj_gens[0][traj_index],vel,eng]
+            # if trajectory hit a object, check to see if it has hit the ground. 
                 #     if it has not hit the ground, check to see how much energy/ force it hits and object with
                 #         if energy is > energy threshold:
                 #             invalidate the trajectory
-
-            # 7. Look at the trajectories and pick the one with the medium distance to travel in the X direction
-
-            #if the trajectory checker is good, break the loop 
-            if (pcl_check == True):
-                return True, traj_gens[0]
             elif len(traj_gens[2])<=1:
                 return False, None
             else:
@@ -221,7 +218,7 @@ class TrajectoryPlanner:
             #1. check to make sure we have a ball to launch
             if self.balls_loaded == 0:
                 print('Needs to load more balls!')
-                continue
+                break
             
             #2. Generate random points on map to launch from
             x = np.random.randint(self.low_x,self.high_x)
@@ -244,19 +241,19 @@ class TrajectoryPlanner:
                 if d>self.MAX_RANGE_X:
                     d = self.MAX_RANGE_X
 
-                good,angle = self.generate_trajs(dist = d)
-
+                # [True, traj_gens[0][traj_index],vel,eng]
+                good,angle,vel,eng = self.generate_trajs(dist = d)
+                
                 #if a trajectory is not found turn the bot
                 if good is True:
                     # 8. publish command to ball launcher with the following:
                     # data = [launcher_angle, impulse force, launch velocity]
-                    self.traj_lnchr_cmd.publish(data = [0.00,0.00,0.00])
-                    # self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
-                    #set launcher angle and fire
-
+                    self.traj_lnchr_cmd.publish(data = [float(angle),float(vel),float(eng)])
                     # 9. decrement balls counter
                     self.balls_loaded -= 1
-                    pass
+                    print('Balls Away!')
+                    time.sleep(10)
+                    break
                 else:
                     #turn 45 degrees in the local frame
                     self.ori_local += turn_rbt 
