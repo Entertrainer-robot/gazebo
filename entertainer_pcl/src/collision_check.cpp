@@ -40,6 +40,7 @@ class collision_checker
   {
     // the current input point cloud 
     pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    plane_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
 
     // conversion to PCL point cloud 
     pcl::PCLPointCloud2 input_cloud_pc2;
