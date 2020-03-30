@@ -1,5 +1,6 @@
 #include "ros/ros.h"
 #include "std_msgs/Bool.h"
+#include "std_msgs/Int32.h"
 #include <geometry_msgs/PoseArray.h>
 // PCL specific includes
 #include <sensor_msgs/PointCloud2.h>
@@ -23,6 +24,9 @@ class collision_checker
   // publisher for the collision checking result
   ros::Publisher collision_pub = n.advertise<std_msgs::Bool>("collision_check", 100);
 
+  // publisher for the collision occurance time 
+  ros::Publisher collision_time_pub = n.advertise<std_msgs::Int32>("collision_time", 100);
+
   // subscriber for point cloud input
   ros::Subscriber point_cloud_sub = n.subscribe("/camera/depth/points", 1, &collision_checker::pointCloudCallback, this);
 
@@ -45,7 +49,7 @@ class collision_checker
     // clip the point cloud in the desired X-Z plane
     pcl::PassThrough<pcl::PointXYZ> pass;
     pass.setInputCloud (point_cloud);
-    pass.setFilterFieldName ("x");
+    pass.setFilterFieldName ("y");
     pass.setFilterLimits (-0.1, 0.1);
     pass.filter (*plane_cloud);
   }
@@ -63,6 +67,7 @@ class collision_checker
       // set search parameters
       float radius = 0.1; 
       std_msgs::Bool result;
+      std_msgs::Int32 collision_time;
       result.data = false;
     
       // search through th trajectory, checking for collisions
@@ -83,7 +88,9 @@ class collision_checker
   	    {
 	        // publish collision = true 
 	        result.data = true;
-    	    collision_pub.publish(result);
+                collision_time.data = i;
+		collision_time_pub.publish(collision_time);
+    	        collision_pub.publish(result);
 	        break;
   	    }
       }
@@ -91,6 +98,8 @@ class collision_checker
     // publish collision = false
     if(result.data == false)
       {
+	      collision_time.data = -1;
+ 	      collision_time_pub.publish(collision_time);
 	      collision_pub.publish(result);
       }
     }
