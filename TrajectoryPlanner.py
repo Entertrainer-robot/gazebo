@@ -25,20 +25,11 @@ class TrajectoryPlanner:
             self.traj_pos_traj = rospy.Publisher('traj_pos_traj', String, queue_size=10)
             self.traj_arc_path = rospy.Publisher('traj_arc_path', PoseArray, queue_size=10)
             self.traj_lnchr_cmd = rospy.Publisher('traj_lnchr_cmd', Float64MultiArray, queue_size=10)
-            self.traj_twist_cmd = rospy.Publisher('traj_lnchr_cmd', Float64, queue_size=10)
-            '''
-            MultiArrayLayout  layout        # specification of data layout
-            float64[]         data          # array of data
-
-
-            Compact Message Definition
-            std_msgs/MultiArrayLayout layout
-            float64[] data
-            '''
+            self.traj_twist_cmd = rospy.Publisher('traj_twist_cmd', Float64, queue_size=10)
             self.traj_nav_pts = rospy.Publisher('traj_nav_pts', Point, queue_size=10)
             #subscribers
             self.map_sub = rospy.Subscriber("map", OccupancyGrid, self.mapper_callback)
-            self.lnchr_angle_sub = rospy.Subscriber("map", Float64, self.lnchr_angle_callback)
+            self.lnchr_angle_sub = rospy.Subscriber("lnchr_angle_sub", Float64, self.lnchr_angle_callback)
 
         #------ Mapper Properties
         self.ogrid = None
@@ -47,7 +38,7 @@ class TrajectoryPlanner:
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        self.high_x,self.high_y] = self.ogrid.shape
+        self.high_x,self.high_y = self.ogrid.shape
         self.low_x,self.low_y = 0,0
         #------ Launcher Properties
         #Load the flight model 
@@ -125,12 +116,7 @@ class TrajectoryPlanner:
     
         msg = Pose()
         msg.position.x, msg.position.y, msg.position.z = state
-        return msg
-
-    def pack_float(self,state):
-        msg = Float64MultiArray()
-        return msg.data.append(state)
-    
+        return msg    
 
     def generate_trajs(self,g = -9.81,dist = 0):
         '''
@@ -238,9 +224,9 @@ class TrajectoryPlanner:
                 good = True
                 #if a trajectory is not found turn the bot
                 if good is True:
-                    # 8. publish command to ball launcher to set angle, impulse, and launch velocity
-                    
-                    self.traj_lnchr_cmd.publish(self.pack_float(np.array(0.00,0.00,0.00)))
+                    # 8. publish command to ball launcher with the following:
+                    # data = [launcher_angle, impulse force, launch velocity]
+                    self.traj_lnchr_cmd.publish(data = [0.00,0.00,0.00])
                     # self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
                     #set launcher angle and fire
 
@@ -251,7 +237,11 @@ class TrajectoryPlanner:
                     #turn 30 degrees in the local frame
                     self.ori_local += 30
                     #publish twist msg to nav
-                    self.traj_twist_cmd.publish(self.ori_local)
+                self.traj_twist_cmd.publish(self.ori_local)
+
+    def pack_float(self,state):
+        msg = Float64MultiArray()
+        return msg.data.append(state)
 
 if __name__ == '__main__':
     TP = TrajectoryPlanner()
