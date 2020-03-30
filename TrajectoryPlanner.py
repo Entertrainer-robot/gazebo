@@ -7,7 +7,7 @@ Created on Tue Mar 16 20:11:35 2020
 import rospy,time
 import numpy as np
 from physics_model import Flight_Model_1
-from std_msgs.msg import String, Header, Float64MultiArray, Float64
+from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import Point, Pose, PoseArray
 
@@ -15,7 +15,7 @@ class TrajectoryPlanner:
     '''
     Calculates mulitple trajectories using the physical properties of the launcher
     '''
-    def __init__(self, first_run = True, balls_loaded = None, ori = 0, lnch_ori = 45,wait_timer = 3):
+    def __init__(self, first_run = True, balls_loaded = None, ori = 0, lnch_ori = 45,wait_timer = 1):
 
         #------ ROS nodes,pubs, and subs
         #create a ros publisher
@@ -30,6 +30,11 @@ class TrajectoryPlanner:
             #subscribers
             self.map_sub = rospy.Subscriber("map", OccupancyGrid, self.mapper_callback)
             self.lnchr_angle_sub = rospy.Subscriber("lnchr_angle_sub", Float64, self.lnchr_angle_callback)
+            self.collision_check_sub = rospy.Subscriber("collision_check_sub", Bool, self.collision_check_callback)
+            self.collision_time_sub = rospy.Subscriber("collision_time_sub", Int32, self.collision_time_callback)
+
+        self.collision_time = None
+        self.is_collision = False
 
         #------ Mapper Properties
         self.ogrid = None
@@ -100,14 +105,31 @@ class TrajectoryPlanner:
         
         '''
         self.lnchr_angle = float(msg)
+
+    def collision_check_callback(self,msg):
+        self.is_collision = msg
     
-    def get_dead_rkn_dist(self):
+    def collision_time_callback(self,msg):
+        self.collision_time = msg
+
+    def dist_trace_from_map(self,x,y):
         '''
         placeholder function to get dead reckoning linear distance infront of 
         the robot
         '''
-        launch_low = 0.01 #m 
-        return np.random.uniform(launch_low,self.MAX_RANGE_X**2)
+        dx = x
+        dy = y
+        ori = np.deg2rad(self.ori_local)
+        counter = 0
+        while counter < int(self.high_x+self.high_y) :
+            dx+=int(np.round(np.cos(ori)*1))
+            dy+=int(np.round(np.sin(ori)*1))
+            #Check to stay within bounds
+            if dx > self.high_x-1 or dy > self.high_y-1 or dx < 0 or dy < 0 or self.ogrid[dx][dy] >0:
+                return np.sqrt((dx-x)**2+(dy-y)**2)*0.05
+            else:
+                counter+=1
+        return False
 
     def pack_pose(self,state):
         '''
@@ -129,7 +151,6 @@ class TrajectoryPlanner:
         vel = 0 
         # impact energy
         eng = 0
-        print(eng,)
 
         #calculate the minimum velocity needed to reach the distance.  
         vel = self.FM1.calc_lnch_vel(dist,self.lnchr_angle)
@@ -158,7 +179,6 @@ class TrajectoryPlanner:
                 self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
                 #placeholder function and logic
                 pcl_check = None            
-                
                 # if pcl_check>0: there is a collision
 
                 #4. Create a point cloud in front of the robot
@@ -196,7 +216,7 @@ class TrajectoryPlanner:
         rospy.Rate(rate)
         while True:
             if not rospy.is_shutdown():
-                print('rosok')
+                pass
                 
             #1. check to make sure we have a ball to launch
             if self.balls_loaded == 0:
@@ -211,17 +231,21 @@ class TrajectoryPlanner:
             self.traj_nav_pts.publish(x = x, y= y)
 
             #reset the local orientation
-            self.ori_local = 0
-
-            while self.ori_local<= 360:
+            self.ori_local = self.ori_global
+            
+            turn_rbt = 45
+            counter = 0
+            #while we have not turned in a full circle
+            while counter<= 360//turn_rbt:
                 #Query a random range from the map or range finder
-                d = self.get_dead_rkn_dist()
+                d = self.dist_trace_from_map(x= x, y = y)
+                
                 #If the distance is greator than the max range, set the distance equal to max range
                 if d>self.MAX_RANGE_X:
                     d = self.MAX_RANGE_X
 
-                # good,angle = self.generate_trajs(dist = d)
-                good = True
+                good,angle = self.generate_trajs(dist = d)
+
                 #if a trajectory is not found turn the bot
                 if good is True:
                     # 8. publish command to ball launcher with the following:
@@ -234,14 +258,17 @@ class TrajectoryPlanner:
                     self.balls_loaded -= 1
                     pass
                 else:
-                    #turn 30 degrees in the local frame
-                    self.ori_local += 30
+                    #turn 45 degrees in the local frame
+                    self.ori_local += turn_rbt 
                     #publish twist msg to nav
+                    counter+=1
                 self.traj_twist_cmd.publish(self.ori_local)
 
     def pack_float(self,state):
         msg = Float64MultiArray()
         return msg.data.append(state)
+
+    
 
 if __name__ == '__main__':
     TP = TrajectoryPlanner()
