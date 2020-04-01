@@ -2,7 +2,7 @@
   <link name="ball_body">
     <inertial>
       <origin xyz="0 0 0" />
-      <mass value="0.0585" /><!--1.76oz, 0.0498 kg-->
+      <mass value="0.0498" /><!--1.76oz, 0.0498 kg old was 0.0585-->
       <inertia
         ixx="0.001"
         ixy="0.0"

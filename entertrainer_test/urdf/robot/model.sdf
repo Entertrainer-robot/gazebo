@@ -1,0 +1,47 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="entertrainer_test">
+
+    <link name="base">
+
+      <inertial>
+        <pose>0 0.5 0.5 0 0 0</pose>
+        <inertia>
+          <ixx>0.01</ixx>
+          <ixy>0.00</ixy>
+          <ixz>0.00</ixz>
+          <iyy>0.01</iyy>
+          <iyz>0.00</iyz>
+          <izz>0.01</izz>
+        </inertia>
+        <mass>3.4</mass>
+      </inertial>
+
+      <collision name="base_collision">
+        <!--L/R U/D F/B  -->
+        <pose>0 0.6 0.6 0 0 0</pose>
+        <geometry>
+          <box>
+            <!--L/R F/B U/D  -->
+            <size>0.4 0.6 0.35</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="base_visual">
+        <pose>0 0.5 0.65 0 0 0</pose>
+        <geometry>
+          <!--<box>
+            <size>0.5 1 0.25"</size>
+          </box>-->
+          <mesh>
+            <uri>model://dae/body.dae</uri>
+            <scale>0.05 0.05 0.05 0.05</scale>
+          </mesh>
+        </geometry>
+      </visual>
+
+
+
+    </link>
+  </model>
+</sdf>
