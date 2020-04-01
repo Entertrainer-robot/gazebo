@@ -9,7 +9,7 @@
 
   <!-- Load up the Test Node -->
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
- <node name="test" pkg="entertrainer_test" type="test" output="screen" />
+ <!--<node name="test" pkg="entertrainer_test" type="test" output="screen" />-->
 
  <!--
  -->
@@ -19,16 +19,25 @@
 
   <param name="ball_description" command="cat '$(find entertrainer_test)/urdf/tennis_ball.urdf'" />
 
-  <node name="tennis_ball_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param ball_description -model tennis_ball" />
+  <node name="tennis_ball_spawn1" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param ball_description -model tennis_ball1" />
+  <node name="tennis_ball_spawn2" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param ball_description -model tennis_ball2" />
+  <node name="tennis_ball_spawn3" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param ball_description -model tennis_ball3" />
 
-
+<!--
   <param name="dog_description" command="cat '$(find entertrainer_test)/urdf/dog.urdf'" />
   <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param dog_description -model dog -x -3 -y -2 -z 0 " />
-
+-->
 <!--  <param name="dog_description" command="cat '$(find little_dog)/LittleDog.urdf'" />
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model littledog -x -3 -y -2 -z 0 -param dog_description" />
 -->
 
-  <node name="collision_checker" pkg="entertainer_pcl" type="entertrainer_pcl" output="screen" />
+<!-- <node name="collision_checker" pkg="entertainer_pcl" type="entertrainer_pcl" output="screen" />-->
+
+
+<!--Test Robot-->
+  <param name="robot_description" command="cat '$(find entertrainer_gazebo)/entertrainer_test/urdf/robot/model.sdf'"/>
+
+  <node name="spawn_sdf" pkg="gazebo_ros" type="spawn_model" args="-sdf -param robot_description -model entertrainer_test -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos)"/>
+
 
 </launch>
