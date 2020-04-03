@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>entertrainer_test</name>
+  <version>0.0.1</version>
+  <description>
+    Gazebo simulation package for the Entertrainer
+  </description>
+  <license>UNKNOWN</license>
+  <author email="fake@website.com">Fake</author>
+  <maintainer email="fake@website.com">Fake</maintainer>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>urdf</depend>
+  <depend>xacro</depend>
+  <export>
+    <gazebo_ros gazebo_media_path="${prefix}/gazebo/entertrainer_test/urdf"/>
+    <gazebo_ros gazebo_model_path="${prefix}/gazebo/entertrainer_test/urdf"/>
+  </export>
+</package>

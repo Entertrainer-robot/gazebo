@@ -52,7 +52,7 @@ def rxzy(tx, ty, tz, x, y, z):
     _x, _y, _z = ry(ty, _x, _y, _z)
     return [_x, _y, _z]
 
-def euler_from_quaternion(q):
+def calc_euler_from_quaternion(q):
     # expect q is x,y,z,w like the pose.rotation value in rospy
     # Roll (x-axis rotation)
     sinr_cosp = 2 * (q.w * q.x + q.y * q.z)

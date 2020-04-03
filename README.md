@@ -38,7 +38,9 @@ We will paraphrase the following link http://wiki.ros.org/catkin/Tutorials/creat
 > ./start.sh
 
 
-
+# Install Point Clouds
+http://pointclouds.org/downloads/linux.html
+But there is more, will need to be updated. 
 
 
 # Don't think we need this, but leaving this here for the time being.
