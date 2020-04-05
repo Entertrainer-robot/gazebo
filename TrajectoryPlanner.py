@@ -4,12 +4,13 @@ Created on Tue Mar 16 20:11:35 2020
 
 @author: psubacz
 """
-import rospy,time
+import rospy, time, cv2, imutils
 import numpy as np
 from physics_model import Flight_Model_1
 from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import Point, Pose, PoseArray
+import object_recognition as obj_rec
 
 class TrajectoryPlanner:
     '''
@@ -43,7 +44,10 @@ class TrajectoryPlanner:
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        self.high_x,self.high_y = self.ogrid.shape
+        # self.high_x,self.high_y = self.ogrid.shape
+        # self.high_x = 300
+        # self.high_y = 300
+        
         self.low_x,self.low_y = 0,0
         #------ Launcher Properties
         #Load the flight model 
@@ -53,12 +57,16 @@ class TrajectoryPlanner:
         #Max force produced by the launcher
         self.max_force =  3.33 #(newtons)
         #energy threshold not to exceed
-        self.energy_threshold = 2500 #joules
+        self.energy_threshold = 2500    #joules
+        self.energy_calculated = 0      #joules
+
         #launcher angle
         self.lnchr_angle = self.FM1.deg_2_rad(lnch_ori)
+
         #set a max range
         self.MAX_RANGE_X = 4.572 #m ->15ft
         self.MAX_RANGE_Y = 2.4384 #m -> 8ft
+
         #max timer to wait for trajectory response
         self.max_time = 1.00
 
@@ -76,6 +84,8 @@ class TrajectoryPlanner:
             self.balls_loaded = 3
         else:
             self.balls_loaded = balls_loaded
+
+        objrec = obj_rec.Object_Recognition()
 
 
     def mapper_callback(self,msg):
@@ -149,24 +159,27 @@ class TrajectoryPlanner:
         '''
         #velocity to launch 
         vel = 0
-
-        # impact energy
-        eng = 0
-
-        #calculate the minimum velocity needed to reach the distance.  
-        vel = self.FM1.calc_lnch_vel(dist,self.lnchr_angle)
-        #generate trajectories
-        traj_gens = self.create_trej_gens(vel)
         #timer values
         tic = 0
         toc = 0
+
+        # impact energy
+        self.energy_calculated = 0
+
+        #calculate the minimum velocity needed to reach the distance.  
+        vel = self.FM1.calc_lnch_vel(dist,self.lnchr_angle)
+
+        #generate trajectories
+        traj_gens = self.create_trej_gens(vel)
 
         #While attempting to get a trajectory/
         while True:
             #pick the longest trajectory
             traj_index = np.argmax(traj_gens[2])
             traj_gen = traj_gens[1][traj_index]
-            
+            # angle = traj_gens
+            print(traj_gens[0][traj_index])
+            break
             #generate the trajectory as a list of poses.
             pose_list = []
             for _ in range(0,int(np.max(traj_gens[2])*100)+1):
@@ -181,17 +194,35 @@ class TrajectoryPlanner:
                 self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
                 if self.is_collision: #there is a collision
                     pcl_check = True
-
+                    
             #if the trajectory checker is good, break the loop 
             if (pcl_check != True):
-                return [True, traj_gens[0][traj_index],vel,eng]
-            elif pcl_check == True:
+                launch_impulse = self.FM1.calc_launch_impulse(dist = d,theta = angle)*0.1
+                return [True, traj_gens[0][traj_index],vel,launch_impulse]
 
-                return [False, traj_gens[0][traj_index],vel,eng]
-            # if trajectory hit a object, check to see if it has hit the ground. 
-                #     if it has not hit the ground, check to see how much energy/ force it hits and object with
-                #         if energy is > energy threshold:
-                #             invalidate the trajectory
+            elif pcl_check == True:
+                if self.collision_time is not None:
+                    launch_impulse = self.FM1.calc_launch_impulse(dist = d,theta = angle)*0.1
+                    
+                    #impact energy for the x direction only
+                    impact_energy = self.FM1.cal_impact_energy(vel = vel,ball_mass = self.tMass)
+                    '''
+                    Neural network processing here
+
+                    Get camera image
+
+                    process into CNN
+                    
+                    Get output stream
+                    
+                    Establish min impact energy for each item
+                    
+                    '''
+                    if launch_impulse < self.energy_threshold:
+                        return [True, traj_gens[0][traj_index],vel,launch_impulse]
+                        self.collision_time = None
+                return [False, traj_gens[0][traj_index],vel,launch_impulse]
+
             elif len(traj_gens[2])<=1:
                 return False, None
             else:
@@ -241,14 +272,16 @@ class TrajectoryPlanner:
                 if d>self.MAX_RANGE_X:
                     d = self.MAX_RANGE_X
 
-                # [True, traj_gens[0][traj_index],vel,eng]
-                good,angle,vel,eng = self.generate_trajs(dist = d)
+                # [True, traj_gens[0][traj_index],vel,launch_impulse]
+                good,angle,vel,launch_impulse = self.generate_trajs(dist = d)
+
+                self.energy_calculated = self.FM1.calc_launch_impulse(dist = d,theta = angle)
                 
                 #if a trajectory is not found turn the bot
                 if good is True:
                     # 8. publish command to ball launcher with the following:
-                    # data = [launcher_angle, impulse force, launch velocity]
-                    self.traj_lnchr_cmd.publish(data = [float(angle),float(vel),float(eng)])
+                    # data = [launcher_angle, launch velocity, impulse force, launch_force]
+                    self.traj_lnchr_cmd.publish(data = [float(angle),float(vel),float(self.energy_calculated),float(launch_impulse)])
                     # 9. decrement balls counter
                     self.balls_loaded -= 1
                     print('Balls Away!')
@@ -264,8 +297,6 @@ class TrajectoryPlanner:
     def pack_float(self,state):
         msg = Float64MultiArray()
         return msg.data.append(state)
-
-    
 
 if __name__ == '__main__':
     TP = TrajectoryPlanner()

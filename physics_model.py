@@ -6,50 +6,6 @@ Created on Tue Mar 14 21:10:40 2020
 """
 import numpy as np
 
-#def Three_Dim_Motion(dt, acceleration, gravity,  seed_pos_v_0 = None):
-#    #X[0] = x+v*t+a*t^ 2 and
-#    #X[3] = v+a*t
-#
-#    #State matrix X
-#    X = np.zeros((6,1))
-#    if seed_pos_v_0 is None:
-#        X[0,0] = 0 #xPosition
-#        X[1,0] = 0 #yPosition
-#        X[2,0] = 0 #zPosition
-#        X[3,0] = 0 #xv_0ocity
-#        X[4,0] = 0 #yv_0ocity
-#        X[5,0] = 0 #zv_0ocity
-#    else:
-#        X[0,0] = seed_pos_v_0[0] #xPosition
-#        X[1,0] = seed_pos_v_0[1] #yPosition
-#        X[2,0] = seed_pos_v_0[2] #zPosition
-#        X[3,0] = seed_pos_v_0[0] #xv_0ocity
-#        X[4,0] = seed_pos_v_0[1] #yv_0ocity
-#        X[5,0] = seed_pos_v_0[2] #zv_0ocity
-#        
-##    print(X)
-#
-#    #A matrix
-#    A = np.eye(6)
-#    A[0,3]=dt
-#    A[1,4]=dt
-#    A[2,5]=dt
-#    
-#    #B Matrix
-#    B = np.zeros((6,3))
-#    B[0,0] = acceleration
-#    B[1,1] = acceleration
-#    B[2,2] = acceleration
-#    B[3,0] = dt
-#    B[4,1] = dt
-#    B[5,2] = dt
-#    
-#    #Control Variable Matrix
-#    U = np.zeros((3,1))
-#    U[0,0] = gravity
-#    
-#    return np.array(np.dot(A,X)+B.dot(U))
-
 class Flight_Model_1:
     '''
     Flight model no air resistance
@@ -84,7 +40,7 @@ class Flight_Model_1:
         '''
         return ((v_0**2)/(-1*g))*np.sin(2*theta)
 
-    def calc_launch_impulse(self,dist = 0,t = 0.1, g = 9.81,m = 0.498,theta = 0):
+    def calc_launch_impulse(self,dist,theta,t = 0.1, g = 9.81,m = 0.498):
         '''
         calculates impulse force of the launcher
         '''
@@ -122,9 +78,8 @@ class Flight_Model_1:
     def calc_lnch_vel(self,x_f,theta, g = -9.81,x_i = 0):
         return np.sqrt((-1*g*(x_f-x_i))/(np.sin(2*theta)))
 
-    def cal_impact_energy(self,vel,ball_mass):
-        return 0.5*ball_mass*vel**2
-            
+    def cal_impact_energy(self,vel,ball_mass,theta):
+        return 0.5*ball_mass*vel**2*np.cos(theta)
             
             
 
