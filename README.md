@@ -3,6 +3,7 @@ DEBUG Notes
 
 
 Developed with ros-melodic
+
 Make sure to have the following packages installed
 1) ros-melodic-openslam-gmapping
 2) ros-melodic-turtle-actionlib
