@@ -113,7 +113,7 @@
   <gazebo reference="base_scan">
     <material>Gazebo/FlatBlack</material>
     <sensor type="ray" name="lds_lfcd_sensor">
-      <pose>0 0 0 0 0 0</pose>
+      <pose>0 0 0 0 0 0</pose><!--0 0 0 0 0 0-->
       <visualize>$(arg laser_visual)</visualize>
       <update_rate>5</update_rate>
       <ray>
