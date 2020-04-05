@@ -1,3 +1,7 @@
+DEBUG Notes
+1) If Gazebo aspects are failing to load run 'killall gzserver' as sometimes roque gazebo files are still running
+
+
 Developed with ros-melodic
 Make sure to have the following packages installed
 1) ros-melodic-openslam-gmapping
