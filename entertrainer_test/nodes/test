@@ -21,7 +21,7 @@ from math import *
 
 from ball_launcher import *
 
-entertrainer_name = "turtlebot3"
+entertrainer_name = "entertrainer"
 ball_name = "tennis_ball"
 debug_ball = False
 debug_launcher = False
