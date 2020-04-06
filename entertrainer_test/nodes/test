@@ -40,13 +40,7 @@ class BasicEntertrainerController(object):
         self.get_model_properties = None
         self.get_model_state = None
         self.ball_launcher = BallLauncher()
-        self.cnt = 0
-        self.current_num_balls = 3
-        self.launch_ball = False
-        self.in_launcher = True
-        self.ball_last_position = None
-        self.ball_current_position = None
-        self.objects = {}
+
         if(rate != 0):
             update_timer = rospy.Timer(rospy.Duration(rate), self.basic_movement)
 
@@ -102,53 +96,10 @@ class BasicEntertrainerController(object):
         finally:
             pass
 
-#        if(debug_ball):
-#            try:
-#                model_state = self.get_model_state(ball_name, "")
-#                if(model_state.success):
-#                    _position = model_state.pose.position
-#                    rospy.loginfo('-> Checked the Ball Position ='+ str(_position.x) +' '+ str(_position.y) +' '+ str( _position.z))
-#            finally:
-#                pass
-
-#        # Save off the ball location currently
-#        model_state = self.get_model_state(ball_name, "")
-#        try:
-#            if(model_state.success):
-#                self.ball_current_position = model_state.pose.position
-#        finally:
-#            pass
-
-
-#        delta_z = 0.1
-#        ball_elevation = self.ball_current_position.z
-#        on_ground = (not self.in_launcher and  ball_elevation < 0.1 and ball_elevation > -0.1)
-#        if(self.cnt == 50):
-#            self.launch_ball = True
-#
-#        elif(on_ground or self.cnt == 150):
-#
-#            dx = self.ball_last_position.x - self.ball_current_position.x
-#            dy = self.ball_last_position.y - self.ball_current_position.y
-#            dz = self.ball_last_position.z - self.ball_current_position.z
-#            distance = sqrt(dx**2 + dy**2 + dz**2)
-#            rospy.loginfo('The ball Went ' + str(distance) + ' meters; dx=' + str(dx) + ' dy=' + str(dy) + ' dz=' + str(dz))
-
-            # Auto pick up ball...
-#            self.in_launcher = True
-#            self.cnt = 0
-#        else:
-#            self.launch_ball = False
-
-#        self.cnt += 1
-
-        twist = Twist()
-
-
-
-        twist.linear.x = 0.22
-        twist.angular.z = 0.11
-        self._cmd_pub.publish(twist)
+        #twist = Twist()
+        #twist.linear.x = 0.22
+        #twist.angular.z = 0.11
+        #self._cmd_pub.publish(twist)
         #rospy.loginfo('Twisting the robot!')
 
 

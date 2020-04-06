@@ -130,6 +130,7 @@ class BallLauncher():
         self.launch_ball = True
 
     def update_cycle(self, robot_euler_angles, _pose):
+        rospy.loginfo('Ball Launcher Values launch=' + str(self.launch_ball) + "\t Loaded=" + str(self.in_launcher) + "\t remaining=" + str(self.current_num_balls) + " average_z=" + str(self.average_z))
         self.in_launcher = (True if self.current_num_balls > 0 else False)
 
         # smooth out z axis
@@ -196,32 +197,6 @@ class BallLauncher():
                 finally:
                     pass
 
-
-
-#        if(debug_ball):
-#            try:
-#                model_state = self.get_model_state(ball_name, "")
-#                if(model_state.success):
-#                    _position = model_state.pose.position
-#                    rospy.loginfo('-> Checked the Ball Position ='+ str(_position.x) +' '+ str(_position.y) +' '+ str( _position.z))
-#            finally:
-#                pass
-
-        # Save off the ball location currently
-#        model_state = self.get_model_state(ball_name, "")
-#        try:
-#            if(model_state.success):
-#                self.ball_current_position = model_state.pose.position
-#        finally:
-#            pass
-
-#        dx = self.ball_last_position.x - self.ball_current_position.x
-#        dy = self.ball_last_position.y - self.ball_current_position.y
-#        dz = self.ball_last_position.z - self.ball_current_position.z
-#        distance = sqrt(dx**2 + dy**2 + dz**2)
-#        rospy.loginfo('The ball Went ' + str(distance) + ' meters; dx=' + str(dx) + ' dy=' + str(dy) + ' dz=' + str(dz))
-
-
         if(self.cnt == 10):
             if(self.current_num_balls > 0):
                 self.in_launcher = True
@@ -238,5 +213,5 @@ class BallLauncher():
 
         # Publish the state_msg
         #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
-        launcher_status_data = [int32(self.current_num_balls), int32(self.in_launcher)]
-        self.launcher_status_pub.publish(data = launcher_status_data
+        launcher_status_data = [self.current_num_balls, self.in_launcher]
+        self.launcher_status_pub.publish(data = launcher_status_data)
