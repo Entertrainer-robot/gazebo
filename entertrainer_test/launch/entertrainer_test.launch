@@ -18,7 +18,7 @@
 
   <!-- Dog -->
   <param name="dog_description" command="cat '$(find entertrainer_test)/urdf/dog.urdf'" />
-  <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param dog_description -model dog -x -3 -y -2 -z 0 " />
+  <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param dog_description -model dog -x -1.27 -y 4.45 -z 0 " />
 
   <!-- vase -->
 <!--  <param name="vase_description" command="cat '$(find entertrainer_test)/urdf/vase.urdf'" />
