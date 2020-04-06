@@ -11,8 +11,6 @@ from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
 from nav_msgs.msg import OccupancyGrid, Path
 from sensor_msgs.msg import Image, CompressedImage
 from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Twist
-import object_recognition as obj_rec
-from cv_bridge import CvBridge, CvBridgeError
 
 class TrajectoryPlanner:
     '''
@@ -229,7 +227,7 @@ class TrajectoryPlanner:
         balls_loaded = 3
         return balls_loaded
 
-    def Traj_Controller(self,rate):
+    def trajectory_main(self,rate):
         '''
         Main controller for the trajectory planner
         '''
@@ -333,4 +331,4 @@ class TrajectoryPlanner:
 
 if __name__ == '__main__':
     TP = TrajectoryPlanner()
-    TP.Traj_Controller(rate = 10)
+    TP.trajectory_main(rate = 10)
