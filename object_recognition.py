@@ -37,6 +37,8 @@ class Object_Recognition(object):
 	            "bottle", "bus", "car", "cat", "chair", "cow", "diningtable",
 	            "dog", "horse", "motorbike", "person", "pottedplant", "sheep",
 	            "sofa", "train", "tvmonitor"]
+                
+
 
     def predict(self,frame):
         '''

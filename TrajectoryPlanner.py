@@ -9,6 +9,7 @@ import numpy as np
 from physics_model import Flight_Model_1
 from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
 from nav_msgs.msg import OccupancyGrid, Path
+from sensor_msgs.msg import Image,CompressedImage
 from geometry_msgs.msg import Point, Pose, PoseArray
 import object_recognition as obj_rec
 
@@ -21,6 +22,10 @@ class TrajectoryPlanner:
         #------ ROS nodes,pubs, and subs
         #create a ros publisher
         if(first_run):
+            self.proc_img = True
+            self.collision_time = None
+            self.is_collision = False
+
             rospy.init_node('EntertrainerTrajectoryPlanner')
             #publishers
             self.traj_pos_traj = rospy.Publisher('traj_pos_traj', String, queue_size=10)
@@ -33,9 +38,7 @@ class TrajectoryPlanner:
             self.lnchr_angle_sub = rospy.Subscriber("lnchr_angle_sub", Float64, self.lnchr_angle_callback)
             self.collision_check_sub = rospy.Subscriber("collision_check_sub", Bool, self.collision_check_callback)
             self.collision_time_sub = rospy.Subscriber("collision_time_sub", Int32, self.collision_time_callback)
-
-        self.collision_time = None
-        self.is_collision = False
+            self.raw_camera_rgb_sub = rospy.Subscriber("/camera/rgb/image_raw/compressed", CompressedImage, self.raw_camera_rgb_callback)
 
         #------ Mapper Properties
         self.ogrid = None
@@ -44,7 +47,7 @@ class TrajectoryPlanner:
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        # self.high_x,self.high_y = self.ogrid.shape
+        self.high_x,self.high_y = self.ogrid.shape
         # self.high_x = 300
         # self.high_y = 300
         
@@ -85,12 +88,24 @@ class TrajectoryPlanner:
         else:
             self.balls_loaded = balls_loaded
 
-        objrec = obj_rec.Object_Recognition()
+        self.objrec = obj_rec.Object_Recognition()
+
+        self.image = None
 
 
     def mapper_callback(self,msg):
-            self.ogrid = np.array(msg.data).reshape((msg.info.height, msg.info.width))
-            self.ogrid_origin = np.array([msg.info.origin.position.x, msg.info.origin.position.y])
+        self.ogrid = np.array(msg.data).reshape((msg.info.height, msg.info.width))
+        self.ogrid_origin = np.array([msg.info.origin.position.x, msg.info.origin.position.y])
+
+    def raw_camera_rgb_callback(self,msg):
+        if self.proc_img is True:
+
+            # self.image = int.from_bytes(msg.data, byteorder='big')
+            print(msg.format)
+            # img = cv2.imread(msg.data,0)
+            self.proc_img = False
+        else:
+            pass
 
     def create_trej_gens(self,vel):
         '''
@@ -150,6 +165,37 @@ class TrajectoryPlanner:
         msg.position.x, msg.position.y, msg.position.z = state
         return msg    
 
+    def check_collision(self, pose_list):
+        '''
+        '''
+        #timer values
+        tic = 0
+        toc = 0
+
+        tic = rospy.get_time() #Send data to pcl module, wait 5 seconds for a response
+        pcl_check = False
+        while toc-tic<self.max_time: #while elapsed time is less than the max time  
+            #time elapsed
+            toc = rospy.get_time()
+            #publish the trajectory
+            self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
+            if self.is_collision: #there is a collision
+                pcl_check = True
+        return pcl_check
+
+    def cnn_image_classification(self):
+        '''
+        Neural network processing here
+        1. Get camera image
+        2. process into CNN
+        3. Get output stream    
+        4. Establish min impact energy for each item
+        '''
+        frame = None
+        self.objrec.predict(frame)
+        pass
+        
+
     def generate_trajs(self,g = -9.81,dist = 0):
         '''
         Generates a trajectory path from the currect location and orientation 
@@ -159,9 +205,6 @@ class TrajectoryPlanner:
         '''
         #velocity to launch 
         vel = 0
-        #timer values
-        tic = 0
-        toc = 0
 
         # impact energy
         self.energy_calculated = 0
@@ -177,54 +220,39 @@ class TrajectoryPlanner:
             #pick the longest trajectory
             traj_index = np.argmax(traj_gens[2])
             traj_gen = traj_gens[1][traj_index]
-            # angle = traj_gens
-            print(traj_gens[0][traj_index])
-            break
+            angle = np.deg2rad(traj_gens[0][traj_index])
+
             #generate the trajectory as a list of poses.
             pose_list = []
             for _ in range(0,int(np.max(traj_gens[2])*100)+1):
                 pose_list.append(self.pack_pose(next(traj_gen)))
 
-            tic = rospy.get_time() #Send data to pcl module, wait 5 seconds for a response
-            pcl_check = False
-            while toc-tic<self.max_time: #while elapsed time is less than the max time  
-                #time elapsed
-                toc = rospy.get_time()
-                #publish the trajectory
-                self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
-                if self.is_collision: #there is a collision
-                    pcl_check = True
-                    
+            launch_impulse = self.FM1.calc_launch_impulse(dist = dist,theta = angle)*0.1
+
+            #check for collisions ~takes up to 5 seconds
+            pcl_check = self.check_collision(pose_list)
+            
             #if the trajectory checker is good, break the loop 
             if (pcl_check != True):
-                launch_impulse = self.FM1.calc_launch_impulse(dist = d,theta = angle)*0.1
                 return [True, traj_gens[0][traj_index],vel,launch_impulse]
 
             elif pcl_check == True:
                 if self.collision_time is not None:
-                    launch_impulse = self.FM1.calc_launch_impulse(dist = d,theta = angle)*0.1
-                    
                     #impact energy for the x direction only
-                    impact_energy = self.FM1.cal_impact_energy(vel = vel,ball_mass = self.tMass)
-                    '''
-                    Neural network processing here
+                    impact_energy = self.FM1.cal_impact_energy(vel = vel,ball_mass = self.tMass,theta=angle)
 
-                    Get camera image
+                    self.cnn_image_classification()
 
-                    process into CNN
-                    
-                    Get output stream
-                    
-                    Establish min impact energy for each item
-                    
-                    '''
-                    if launch_impulse < self.energy_threshold:
-                        return [True, traj_gens[0][traj_index],vel,launch_impulse]
+
+                    if impact_energy < self.energy_threshold:
                         self.collision_time = None
+                        return [True, traj_gens[0][traj_index],vel,launch_impulse]
+                        
                 return [False, traj_gens[0][traj_index],vel,launch_impulse]
 
             elif len(traj_gens[2])<=1:
-                return False, None
+                return [False, traj_gens[0][traj_index],vel,launch_impulse]
+
             else:
                 traj_gens[0].pop(traj_index)
                 traj_gens[1].pop(traj_index)
@@ -263,6 +291,8 @@ class TrajectoryPlanner:
             
             turn_rbt = 45
             counter = 0
+
+            break
             #while we have not turned in a full circle
             while counter<= 360//turn_rbt:
                 #Query a random range from the map or range finder
