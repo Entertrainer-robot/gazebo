@@ -9,13 +9,15 @@
 
   <!-- Load up the Test Node -->
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
- <node name="test" pkg="entertrainer_test" type="test" output="screen" />
+ <!-- <node name="test" pkg="entertrainer_test" type="test" output="screen" /> -->
 
  <!--
  -->
  <include file="$(find gmapping)/launch/slam_gmapping_pr2.launch" />
-
-  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch" />
+  <include file="$(find turtlebot3_teleop)/launch/turtlebot3_teleop_key.launch" />
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
+  <arg name="slam_methods" value="gmapping"/>
+  </include>
 
   <param name="ball_description" command="cat '$(find entertrainer_test)/urdf/tennis_ball.urdf'" />
 
@@ -29,6 +31,6 @@
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model littledog -x -3 -y -2 -z 0 -param dog_description" />
 -->
 
-  <node name="collision_checker" pkg="entertainer_pcl" type="entertrainer_pcl" output="screen" />
+ <!-- <node name="collision_checker" pkg="entertainer_pcl" type="entertrainer_pcl" output="screen" /> -->
 
 </launch>
