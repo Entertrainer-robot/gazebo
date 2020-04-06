@@ -123,9 +123,9 @@ class BallLauncher():
         if(debug_launcher): rospy.loginfo('Ball force Applied')
 
     def process_ball_launcher_command(self, msg):
-        a, v, e = msg.data
+        angle, vel, energy, impulse = msg.data
         self.launcher_angle = a
-        #self.impulse_force = f # todo need the impulse force to be included.
+        self.impulse_force = impulse
         #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
         self.launch_ball = True
 
