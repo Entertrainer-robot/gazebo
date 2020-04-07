@@ -56,6 +56,8 @@ class BallLauncher():
 
         self.launch_cmd = rospy.Subscriber("traj_lnchr_cmd", Float64, self.process_ball_launcher_command)
 
+        from ball_launcher import *
+
     def get_proxy_handles(self):
 
         if self.apply_force is None:
@@ -124,7 +126,7 @@ class BallLauncher():
 
     def process_ball_launcher_command(self, msg):
         angle, vel, energy, impulse = msg.data
-        self.launcher_angle = a
+        self.launcher_angle = angle
         self.impulse_force = impulse
         #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
         self.launch_ball = True

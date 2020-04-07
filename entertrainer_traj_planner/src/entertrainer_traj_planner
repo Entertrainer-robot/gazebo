@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Tue Mar 16 20:11:35 2020
@@ -39,17 +40,16 @@ class TrajectoryPlanner:
             self.lnchr_angle_sub = rospy.Subscriber("lnchr_angle_sub", Float64, self.lnchr_angle_callback)
             self.collision_check_sub = rospy.Subscriber("collision_check_sub", Bool, self.collision_check_callback)
             self.collision_time_sub = rospy.Subscriber("collision_time_sub", Int32, self.collision_time_callback)
-            # self.rbt_
             
         #------ Mapper Properties
+        self.have_map = False
         self.ogrid = None
         self.ogrid_origin = None
         
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        self.high_x,self.high_y = self.ogrid.shape
-
+        self.high_x,self.high_y = 100,100
         self.low_x,self.low_y = 0,0
         #------ Launcher Properties
         #Load the flight model 
@@ -73,7 +73,6 @@ class TrajectoryPlanner:
         self.max_time = 1.00 #seconds
 
         #------ Robot Properties  
-        self.ori_global = 0     #radians
         self.ori_local = 0      #radians
         self.turn_rbt = 0.7854  #radians -  Turns the robot 0.7854 rad or 45 deg
 
@@ -243,6 +242,9 @@ class TrajectoryPlanner:
                 break
             else:
                 print('ros ok...')
+
+            if self.have_map is False:
+                continue
                 
             # Check to make sure we have a ball to launch
             if self.balls_loaded == 0:
@@ -253,11 +255,8 @@ class TrajectoryPlanner:
             x = np.random.randint(self.low_x,self.high_x)
             y = np.random.randint(self.low_y,self.high_y)
 
-            # Publish nav points
-            self.traj_nav_pts.publish(x = x, y = y)
-
             # Reset the local orientation
-            self.ori_local = self.ori_global
+            self.ori_local = 0.0
 
             # Cast orientation to radian if number greator than 2 pi
             if float(self.ori_local) > np.pi*2:
@@ -267,6 +266,10 @@ class TrajectoryPlanner:
             counter = 0
             #while we have not turned in a full circle
             while counter<= 360//self.turn_rbt:
+
+                # Publish nav points
+                self.traj_nav_pts.publish(x = x, y = y, z = self.ori_local)
+                
                 #Query a random range from the map or range finder
                 d = self.dist_trace_from_map(x= x, y = y)
 
@@ -319,6 +322,8 @@ class TrajectoryPlanner:
     def mapper_callback(self,msg):
         self.ogrid = np.array(msg.data).reshape((msg.info.height, msg.info.width))
         self.ogrid_origin = np.array([msg.info.origin.position.x, msg.info.origin.position.y])
+        self.high_x,self.high_y = self.ogrid.shape
+        self.have_map = True
 
     def pack_pose(self,state):
         '''
@@ -332,3 +337,4 @@ class TrajectoryPlanner:
 if __name__ == '__main__':
     TP = TrajectoryPlanner()
     TP.trajectory_main(rate = 10)
+    rospy.spin()

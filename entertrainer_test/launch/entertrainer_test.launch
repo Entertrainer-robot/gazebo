@@ -24,10 +24,9 @@
 <!--  <param name="vase_description" command="cat '$(find entertrainer_test)/urdf/vase.urdf'" />
   <node name="vase_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param vase_description -model vase -x -2.5 -y 2.48 -z 1.5 " />-->
 
-
-
-
  <node name="collision_checker" pkg="entertainer_pcl" type="entertrainer_pcl" output="screen" />
+
+ <node name="trajectory_planner" pkg = "entertrainer_traj_planner" type="entertrainer_traj_planner" output="screen"/>
 
 
 </launch>

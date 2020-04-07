@@ -102,13 +102,11 @@ class BasicEntertrainerController(object):
         #self._cmd_pub.publish(twist)
         #rospy.loginfo('Twisting the robot!')
 
-
-
-
 if __name__ == '__main__':
     try:
         print("Starting Program")
         b = BasicEntertrainerController(0.1)
+        tp = TP.TrajectoryPlanner(0.1)
         rospy.spin()
 
     except rospy.ROSInterruptException:
