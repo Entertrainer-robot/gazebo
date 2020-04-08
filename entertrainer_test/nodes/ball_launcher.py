@@ -4,7 +4,7 @@ import rospy
 from math import *
 #from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_msgs.msg import ModelState
-from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
+from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32, Int32MultiArray
 from gazebo_msgs.srv import GetWorldProperties, GetModelProperties, GetModelState
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
@@ -51,8 +51,12 @@ class BallLauncher():
         self.ball_current_position = None
         self.average_z = None
         self.average_z_num = 0
-        self.launcher_angle_pub = rospy.Publisher('lnchr_angle_sub', Float64, queue_size=10)
+#        self.launcher_angle_pub = rospy.Publisher('lnchr_angle_sub', Float64, queue_size=10)
+        self.launcher_status_pub = rospy.Publisher('lnchr_status_pub', Int32MultiArray, queue_size=10)
+
         self.launch_cmd = rospy.Subscriber("traj_lnchr_cmd", Float64, self.process_ball_launcher_command)
+
+        from ball_launcher import *
 
     def get_proxy_handles(self):
 
@@ -121,13 +125,14 @@ class BallLauncher():
         if(debug_launcher): rospy.loginfo('Ball force Applied')
 
     def process_ball_launcher_command(self, msg):
-        a, v, e = msg.data
-        self.launcher_angle = a
-        #self.impulse_force = f # todo need the impulse force to be included.
-        self.launcher_angle_pub.publish(data = float(self.launcher_angle))
+        angle, vel, energy, impulse = msg.data
+        self.launcher_angle = angle
+        self.impulse_force = impulse
+        #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
         self.launch_ball = True
 
     def update_cycle(self, robot_euler_angles, _pose):
+        rospy.loginfo('Ball Launcher Values launch=' + str(self.launch_ball) + "\t Loaded=" + str(self.in_launcher) + "\t remaining=" + str(self.current_num_balls) + " average_z=" + str(self.average_z))
         self.in_launcher = (True if self.current_num_balls > 0 else False)
 
         # smooth out z axis
@@ -194,32 +199,6 @@ class BallLauncher():
                 finally:
                     pass
 
-
-
-#        if(debug_ball):
-#            try:
-#                model_state = self.get_model_state(ball_name, "")
-#                if(model_state.success):
-#                    _position = model_state.pose.position
-#                    rospy.loginfo('-> Checked the Ball Position ='+ str(_position.x) +' '+ str(_position.y) +' '+ str( _position.z))
-#            finally:
-#                pass
-
-        # Save off the ball location currently
-#        model_state = self.get_model_state(ball_name, "")
-#        try:
-#            if(model_state.success):
-#                self.ball_current_position = model_state.pose.position
-#        finally:
-#            pass
-
-#        dx = self.ball_last_position.x - self.ball_current_position.x
-#        dy = self.ball_last_position.y - self.ball_current_position.y
-#        dz = self.ball_last_position.z - self.ball_current_position.z
-#        distance = sqrt(dx**2 + dy**2 + dz**2)
-#        rospy.loginfo('The ball Went ' + str(distance) + ' meters; dx=' + str(dx) + ' dy=' + str(dy) + ' dz=' + str(dz))
-
-
         if(self.cnt == 10):
             if(self.current_num_balls > 0):
                 self.in_launcher = True
@@ -230,5 +209,11 @@ class BallLauncher():
             self.in_launcher = True
             for b in range(len(self.balls)):
                 self.balls[b].launched = False
-        if (self.cnt % 20 == 19 and self.current_num_balls > 0):
-            self.launch_ball = True
+        #if (self.cnt % 20 == 19 and self.current_num_balls > 0):
+        #    self.launch_ball = True
+
+
+        # Publish the state_msg
+        #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
+        launcher_status_data = [self.current_num_balls, self.in_launcher]
+        self.launcher_status_pub.publish(data = launcher_status_data)

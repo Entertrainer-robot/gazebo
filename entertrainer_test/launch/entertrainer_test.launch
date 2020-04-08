@@ -15,7 +15,11 @@
 
   <!-- Load up the Test Node -->
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
+<<<<<<< HEAD
  <!--<node name="test" pkg="entertrainer_test" type="test" output="screen" /> -->
+=======
+ <node name="test" pkg="entertrainer_test" type="test" output="screen" />
+>>>>>>> ad802fcf26f46c11afe4d27656e9304af6f389ba
 
  <param name="ball_description" command="cat '$(find entertrainer_test)/urdf/tennis_ball.urdf'" />
 
@@ -26,14 +30,23 @@
   <!-- Dog -->
   <param name="dog_description" command="cat '$(find entertrainer_test)/urdf/dog.urdf'" />
   <node name="dog_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param dog_description -model dog -x -1.27 -y 4.45 -z 0 " />
+<<<<<<< HEAD
 
   <!-- vase -->
 <!--  <param name="vase_description" command="cat '$(find entertrainer_test)/urdf/vase.urdf'" />
   <node name="vase_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param vase_description -model vase -x -2.5 -y 2.48 -z 1.5 " />-->
 
  <!-- <node name="collision_checker" pkg="entertainer_pcl" type="entertrainer_pcl" output="screen" /> -->
+=======
+
+  <!-- vase -->
+<!--  <param name="vase_description" command="cat '$(find entertrainer_test)/urdf/vase.urdf'" />
+  <node name="vase_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param vase_description -model vase -x -2.5 -y 2.48 -z 1.5 " />-->
+>>>>>>> ad802fcf26f46c11afe4d27656e9304af6f389ba
 
 <!--  <node name="trajectory_planner" pkg = "entertrainer_traj_planner" type="entertrainer_traj_planner" output="screen"/> -->
+
+ <node name="trajectory_planner" pkg = "entertrainer_traj_planner" type="entertrainer_traj_planner" output="screen"/>
 
 
 </launch>
