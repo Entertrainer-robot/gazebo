@@ -33,34 +33,35 @@ class collision_checker
   // subscriber for trajectory input
   ros::Subscriber trajectory_sub = n.subscribe("/Traj_arc_path", 1, &collision_checker::trajectoryCallback, this);
 
-  pcl::PointCloud<pcl::PointXYZ>::Ptr plane_cloud;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud;
 
   // callback function for receiving the point cloud  
   void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& input_cloud)
   {
     // the current input point cloud 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    plane_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
+    point_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
 
     // conversion to PCL point cloud 
     pcl::PCLPointCloud2 input_cloud_pc2;
     pcl_conversions::toPCL(*input_cloud,input_cloud_pc2);
     pcl::fromPCLPointCloud2(input_cloud_pc2,*point_cloud);
 
-    // clip the point cloud in the desired X-Z plane
-    pcl::PassThrough<pcl::PointXYZ> pass;
-    pass.setInputCloud (point_cloud);
-    pass.setFilterFieldName ("y");
-    pass.setFilterLimits (-0.1, 0.1);
-    pass.filter (*plane_cloud);
   }
 
 
   // callback function for receiving the trajectory to check collision 
   void trajectoryCallback(const geometry_msgs::PoseArrayConstPtr& trajectory)
   {
-    if(plane_cloud->size()>1)
+    if(point_cloud->size()>1)
     {
+      pcl::PointCloud<pcl::PointXYZ>::Ptr plane_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+      // clip the point cloud in the desired X-Z plane
+      pcl::PassThrough<pcl::PointXYZ> pass;
+      pass.setInputCloud (point_cloud);
+      pass.setFilterFieldName ("y");
+      pass.setFilterLimits (-0.1, 0.1);
+      pass.filter (*plane_cloud);
+
       // create KD Tree 
       pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;   
       kdtree.setInputCloud (plane_cloud);
