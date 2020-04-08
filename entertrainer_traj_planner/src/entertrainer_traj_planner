@@ -273,7 +273,7 @@ class TrajectoryPlanner:
                     self.traj_nav_pts.publish(x = x, y = y, z = self.ori_local)
                 
                 if self.nav_status is False:
-                    #wait to finish nav
+                    #wait to finish n
                     pass
                 
                 else:
