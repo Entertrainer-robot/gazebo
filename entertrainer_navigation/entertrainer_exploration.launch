@@ -1,16 +1,16 @@
 <launch>
 
-  <!-- launch SLAM -->
+  <!-- launch SLAM
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch">
   <arg name="slam_methods" value="gmapping"/>
-  </include>
+  </include>-->
 
   <!-- launch motion planner -->
   <include file="$(find entertrainer_navigation)/launch/entertrainer_move.launch"/>
 
   <!-- launch frontier exploration -->
-  <node pkg="entertrainer_navigation" name="frontier_node" type="frontier_node.py" output="screen"> 
+  <node pkg="entertrainer_navigation" name="frontier_node" type="frontier_node.py" output="screen">
   </node>
 
- 
+
 </launch>

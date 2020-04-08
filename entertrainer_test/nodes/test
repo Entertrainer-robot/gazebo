@@ -21,7 +21,7 @@ from math import *
 
 from ball_launcher import *
 
-entertrainer_name = "entertrainer"
+entertrainer_name = "entertrainer" # entertrainer
 ball_name = "tennis_ball"
 debug_ball = False
 debug_launcher = False
@@ -106,7 +106,6 @@ if __name__ == '__main__':
     try:
         print("Starting Program")
         b = BasicEntertrainerController(0.1)
-        tp = TP.TrajectoryPlanner(0.1)
         rospy.spin()
 
     except rospy.ROSInterruptException:

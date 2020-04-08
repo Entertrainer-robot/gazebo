@@ -1,6 +1,5 @@
 <launch>
-
-
+  <arg name="nav_mode" default="$(env NAV_MODE)" doc="nav_mode [true for nav, false for exploration]"/>
   <!-- Load up the Environment -->
   <include file="$(find entertrainer_test)/launch/entertrainer_house.launch" />
 
@@ -8,15 +7,16 @@
   <include file="$(find entertrainer_test)/launch/entertrainer_robot.launch" />
 
   <!-- Load up the robot navigation in exploration mode, comment out operation mode launch file when active -->
-  <!-- <include file="$(find entertrainer_navigation)/launch/entertrainer_exploration.launch" /> -->
+  <include file="$(find entertrainer_navigation)/launch/entertrainer_exploration.launch" unless="$(arg nav_mode)"/>
 
   <!-- Load up the robot navigation in operation mode, comment out exploration mode launch file when active -->
-  <include file="$(find entertrainer_navigation)/launch/entertrainer_navigation.launch" /> 
+  <include file="$(find entertrainer_navigation)/launch/entertrainer_navigation.launch" if="$(arg nav_mode)"/>
+
 
   <!-- Load up the Test Node -->
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
 
-  <!--<node name="test" pkg="entertrainer_test" type="test" output="screen" />-->
+ <node name="test" pkg="entertrainer_test" type="test" output="screen" />
 
   <param name="ball_description" command="cat '$(find entertrainer_test)/urdf/tennis_ball.urdf'" />
 

@@ -2,6 +2,7 @@
 
 export TURTLEBOT_3D_SENSOR=kinect
 export TURTLEBOT3_MODEL=waffle
+export NAV_MODE=false
 
 # start up the roslaunch
 roslaunch entertrainer_test entertrainer_test.launch

@@ -2,23 +2,23 @@
 
   <link name="base_link">
     <visual>
-    <origin xyz="0.2 0 0.2" rpy="0 0 0"/>
+    <origin xyz="-0.1 0 -0.265" rpy="0 0 0"/>
 
       <geometry>
-        <mesh filename="package://entertrainer_test/urdf/stl/lava_vase1.stl" scale="0.125 0.125 0.125"/>
+        <mesh filename="package://entertrainer_test/urdf/stl/lava_vase1.stl" scale="0.06125 0.06125 0.06125"/>
       </geometry>
       <material name="light_black"/>
     </visual>
 
     <collision>
-      <origin xyz="0.2 0 0.1" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <box size="0.266 0.266 0.5"/>
+        <box size="0.266 0.266 0.35"/>
       </geometry>
     </collision>
 
     <inertial>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+    <origin xyz="0 0 0.025" rpy="0 0 0"/>
       <mass value="1.3729096e+00"/>
       <inertia ixx="8.7002718e-03" ixy="-4.7576583e-05" ixz="1.1160499e-04"
                iyy="8.6195418e-03" iyz="-3.5422299e-06"

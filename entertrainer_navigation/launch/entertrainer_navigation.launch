@@ -5,10 +5,10 @@
   <arg name="open_rviz" default="true"/>
   <arg name="move_forward_only" default="false"/>
 
-  <!-- Turtlebot3 -->
+  <!-- Turtlebot3
   <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
     <arg name="model" value="$(arg model)" />
-  </include>
+  </include>-->
 
   <!-- Map server -->
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
@@ -16,8 +16,8 @@
   <!-- AMCL -->
   <!-- Arguments -->
   <arg name="scan_topic"     default="scan"/>
-  <arg name="initial_pose_x" default="0.0"/>
-  <arg name="initial_pose_y" default="0.0"/>
+  <arg name="initial_pose_x" default="-3.0"/>
+  <arg name="initial_pose_y" default="1.0"/>
   <arg name="initial_pose_a" default="0.0"/>
 
   <node pkg="amcl" type="amcl" name="amcl">
@@ -66,7 +66,7 @@
   </include>
 
   <!-- rviz -->
-  <group if="$(arg open_rviz)"> 
+  <group if="$(arg open_rviz)">
     <node pkg="rviz" type="rviz" name="rviz" required="true"
           args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
   </group>
