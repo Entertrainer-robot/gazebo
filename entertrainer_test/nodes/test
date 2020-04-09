@@ -6,7 +6,7 @@ from gazebo_msgs.srv import GetWorldProperties, GetModelProperties, GetModelStat
 import matplotlib as mp
 import matplotlib.pyplot as plt
 from math import *
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
+
 from gazebo_ros.gazebo_interface import spawn_sdf_model_client
 from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
 from gazebo_msgs.msg import ModelState
