@@ -30,7 +30,7 @@ class FrontierExplorer:
 
 		self.goalPub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=1) # handle nav goal events
 
-		print "Listening for update"
+		print("Listening for update")
 
 
 	def updateNavigationStatus(self,status):
@@ -39,7 +39,7 @@ class FrontierExplorer:
 		goalReached = Bool()
 		goalReached.data = True
 		self.statusPub.publish(goalReached)
-		print "published goal status when goal is reached" 
+		print "published goal status when goal is reached"
 
 
 
