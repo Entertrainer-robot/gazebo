@@ -11,8 +11,9 @@ Make sure to have the following packages installed
 4) ros-melodic-turtle-tf2
 5) ros-melodic-turtlesim
 6) ros-melodic-dwa-local-planner
-7) pip install imutils
-8) pip install opencv-python
+7) ros-melodic-tf (?)
+8) pip install imutils
+9) pip install opencv-python
 
 Make sure to also export the turtle model
 run 'export TURTLEBOT3_MODEL=waffle'
