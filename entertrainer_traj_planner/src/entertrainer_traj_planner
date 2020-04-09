@@ -8,7 +8,7 @@ Created on Tue Mar 16 20:11:35 2020
 import rospy, time, cv2, imutils
 import numpy as np
 from physics_model import Flight_Model_1
-from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
+from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32, Int32MultiArray
 from nav_msgs.msg import OccupancyGrid, Path
 from sensor_msgs.msg import Image, CompressedImage
 from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Twist
@@ -36,7 +36,7 @@ class TrajectoryPlanner:
 
             #subscribers
             self.map_sub = rospy.Subscriber("/map", OccupancyGrid, self.mapper_callback)
-            self.lnchr_angle_sub = rospy.Subscriber("/lnchr_angle", Float64, self.lnchr_angle_callback)
+            self.lnchr_angle_sub = rospy.Subscriber("/lnchr_status_pub", Int32MultiArray, self.lnchr_angle_callback)
             self.collision_check_sub = rospy.Subscriber("/collision_check", Bool, self.collision_check_callback)
             self.collision_time_sub = rospy.Subscriber("/collision_time", Int32, self.collision_time_callback)
             self.navigation_status_sub = rospy.Subscriber("/navigation_status", Bool, self.navigation_status_callback)
@@ -69,6 +69,7 @@ class TrajectoryPlanner:
 
         #launcher angle
         self.lnchr_angle = self.FM1.deg_2_rad(lnch_ori)
+        self.balls_loaded = 0
 
         #set a max range
         self.MAX_RANGE_X = 4.572 #m ->15ft
@@ -274,7 +275,7 @@ class TrajectoryPlanner:
                     while counter<= 360//self.turn_rbt:
 
                         # Publish nav points
-                        self.traj_nav_pts.publish(x = x, y = y, z = self.ori_local)
+                        self.navigation_goal.publish(x = x, y = y, z = self.ori_local)
                         
                         #Query a random range from the map or range finder
                         d = self.dist_trace_from_map(x= x, y = y)
@@ -317,7 +318,9 @@ class TrajectoryPlanner:
         return msg.data.append(state)
     
     def lnchr_angle_callback(self,msg):
-        self.lnchr_angle = float(msg)
+        #msg = [launcher angle, num balls, loaded in launcher]
+        self.lnchr_angle = self.FM1.deg_2_rad(float(msg.data[0]))
+        self.balls_loaded = int(msg.data[1])
 
     def collision_check_callback(self,msg):
         self.is_collision = msg
