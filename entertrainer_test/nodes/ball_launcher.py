@@ -4,7 +4,7 @@ import rospy
 from math import *
 #from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from gazebo_msgs.msg import ModelState
-from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32, Int32MultiArray
+from std_msgs.msg import Float64MultiArray, Float64, Int32MultiArray
 from gazebo_msgs.srv import GetWorldProperties, GetModelProperties, GetModelState
 from gazebo_msgs.msg import ModelState
 from gazebo_msgs.srv import SetModelState
@@ -200,7 +200,7 @@ class BallLauncher():
         if(self.cnt == 10):
             if(self.current_num_balls > 0):
                 self.in_launcher = True
-        elif(self.cnt == 300 and self.current_num_balls == 0):
+        elif(self.cnt >= 300 and self.current_num_balls == 0):
             # Just reset
             self.current_num_balls = len(self.balls)
             self.cnt = 0

@@ -54,8 +54,8 @@ class TrajectoryPlanner:
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        self.high_x,self.high_y = 100,100
-        self.low_x,self.low_y = 0,0
+        self.high_x,self.high_y = 10,10
+        self.low_x,self.low_y = -10,-10
         #------ Launcher Properties
         #Load the flight model 
         self.FM1 =Flight_Model_1()

@@ -14,6 +14,7 @@ Make sure to have the following packages installed
 7) ros-melodic-tf (?)
 8) pip install imutils
 9) pip install opencv-python
+10) pip install transformations
 
 Make sure to also export the turtle model
 run 'export TURTLEBOT3_MODEL=waffle'
