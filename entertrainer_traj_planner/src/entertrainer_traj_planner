@@ -32,14 +32,14 @@ class TrajectoryPlanner:
             self.traj_arc_path = rospy.Publisher('traj_arc_path', PoseArray, queue_size=10)
             self.traj_lnchr_cmd = rospy.Publisher('traj_lnchr_cmd', Float64MultiArray, queue_size=10)
             self.traj_twist_cmd = rospy.Publisher('traj_twist_cmd', Float64, queue_size=10)
-            self.Navigation_go = rospy.Publisher('/navigation_go', Point, queue_size=10)
+            self.navigation_go = rospy.Publisher('/navigation_go', Point, queue_size=10)
 
             #subscribers
             self.map_sub = rospy.Subscriber("/map", OccupancyGrid, self.mapper_callback)
             self.lnchr_angle_sub = rospy.Subscriber("/lnchr_angle", Float64, self.lnchr_angle_callback)
             self.collision_check_sub = rospy.Subscriber("/collision_check", Bool, self.collision_check_callback)
             self.collision_time_sub = rospy.Subscriber("/collision_time", Int32, self.collision_time_callback)
-            self.navigation_status_sub = rospy.Subscriber("navigation_status", Bool, self.navigation_status_callback)
+            self.navigation_status_sub = rospy.Subscriber("/navigation_status", Bool, self.navigation_status_callback)
 
 
         #Get run properties   
@@ -238,9 +238,6 @@ class TrajectoryPlanner:
                 # Check to see if roscore is running
                 print('roscore is not running, please start roscore...')
                 break
-            else:
-                #do nothing
-                pass
 
             # wait for the map to update
             if (self.have_map is False):
@@ -250,30 +247,27 @@ class TrajectoryPlanner:
             _tic = rospy.get_time() 
             _toc = rospy.get_time()
             
+            # Generate random points on map to launch from
+            x = np.random.randint(self.low_x,self.high_x)
+            y = np.random.randint(self.low_y,self.high_y)
+
+            # Reset the local orientation
+            self.ori_local = 0.0
+
+            # Cast orientation to radian if number greator than 2 pi
+            if float(self.ori_local) > np.pi*2:
+                self.ori_local = np.deg2rad(self.ori_local)
+
+            # counter to count turns
+            counter = 0
+
+            # Publish nav points
+            self.navigation_go.publish(x = x, y = y, z = self.ori_local)
+
             #while elapsed time is less than the max time
             while _toc-_tic < self.run_delay:
-
-                print(_toc-_tic)
-                
-                # Generate random points on map to launch from
-                x = np.random.randint(self.low_x,self.high_x)
-                y = np.random.randint(self.low_y,self.high_y)
-
-                # Reset the local orientation
-                self.ori_local = 0.0
-
-                # Cast orientation to radian if number greator than 2 pi
-                if float(self.ori_local) > np.pi*2:
-                    self.ori_local = np.deg2rad(self.ori_local)
-
-                # counter to count turns
-                counter = 0
-
-                # Publish nav points
-                    self.traj_nav_pts.publish(x = x, y = y, z = self.ori_local)
                 
                 if self.nav_status is False:
-                    #wait to finish n
                     pass
                 
                 else:
@@ -331,6 +325,7 @@ class TrajectoryPlanner:
     
     def navigation_status_callback(self,msg):
         self.nav_status = msg.data
+        print(self.nav_status)
 
     def collision_time_callback(self,msg):
         self.collision_time = msg
