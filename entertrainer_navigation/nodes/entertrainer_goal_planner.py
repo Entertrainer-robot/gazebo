@@ -39,7 +39,7 @@ class FrontierExplorer:
 		goalReached = Bool()
 		goalReached.data = True
 		self.statusPub.publish(goalReached)
-		print "published goal status when goal is reached"
+		print("published goal status when goal is reached")
 
 
 
@@ -58,7 +58,7 @@ class FrontierExplorer:
 		pStamped.pose.position = updated_point
 
 		self.goalPub.publish(pStamped)
-		print "published goal point: " , pStamped.pose.position
+		print("published goal point: " , pStamped.pose.position)
 
 
 
