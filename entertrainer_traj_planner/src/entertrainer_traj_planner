@@ -32,7 +32,7 @@ class TrajectoryPlanner:
             self.traj_arc_path = rospy.Publisher('traj_arc_path', PoseArray, queue_size=10)
             self.traj_lnchr_cmd = rospy.Publisher('traj_lnchr_cmd', Float64MultiArray, queue_size=10)
             self.traj_twist_cmd = rospy.Publisher('traj_twist_cmd', Float64, queue_size=10)
-            self.navigation_go = rospy.Publisher('/navigation_go', Point, queue_size=10)
+            self.navigation_goal = rospy.Publisher('/navigation_goal', Point, queue_size=10)
 
             #subscribers
             self.map_sub = rospy.Subscriber("/map", OccupancyGrid, self.mapper_callback)
@@ -40,7 +40,6 @@ class TrajectoryPlanner:
             self.collision_check_sub = rospy.Subscriber("/collision_check", Bool, self.collision_check_callback)
             self.collision_time_sub = rospy.Subscriber("/collision_time", Int32, self.collision_time_callback)
             self.navigation_status_sub = rospy.Subscriber("/navigation_status", Bool, self.navigation_status_callback)
-
 
         #Get run properties   
         self.run_function = False
@@ -262,7 +261,7 @@ class TrajectoryPlanner:
             counter = 0
 
             # Publish nav points
-            self.navigation_go.publish(x = x, y = y, z = self.ori_local)
+            self.navigation_goal.publish(x = x, y = y, z = self.ori_local)
 
             #while elapsed time is less than the max time
             while _toc-_tic < self.run_delay:
