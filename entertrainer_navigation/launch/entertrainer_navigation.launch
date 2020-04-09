@@ -71,4 +71,7 @@
           args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
   </group>
 
+  <node name="entertrainer_goal_planner" pkg="entertrainer_navigation" type="entertrainer_goal_planner.py" output="screen" />
+
+
 </launch>

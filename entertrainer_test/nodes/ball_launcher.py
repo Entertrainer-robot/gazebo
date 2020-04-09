@@ -213,5 +213,5 @@ class BallLauncher():
 
         # Publish the state_msg
         #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
-        launcher_status_data = [self.current_num_balls, self.in_launcher]
+        launcher_status_data = [int(self.launcher_angle), self.current_num_balls, self.in_launcher]
         self.launcher_status_pub.publish(data = launcher_status_data)
