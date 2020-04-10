@@ -26,6 +26,7 @@ class TrajectoryPlanner:
             self.collision_time = None
             self.is_collision = False
 
+
             rospy.init_node('EntertrainerTrajectoryPlanner')
             #publishers
             self.traj_pos_traj = rospy.Publisher('traj_pos_traj', String, queue_size=10)
@@ -50,6 +51,7 @@ class TrajectoryPlanner:
         self.have_map = False
         self.ogrid = None
         self.ogrid_origin = None
+        self.map = None
 
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
@@ -118,6 +120,24 @@ class TrajectoryPlanner:
 #        self.have_map = True
 #
 #		return Point(x,y,0)
+    # x,y is the checking point in m
+    # radius is in m, please limit the radius within o.2m, # of cells checked goes up exponentially 
+    # return Truefor collision 
+    def map_obstacle_checking(self,x,y,radius):
+        x -= self.map.info.origin.position.x
+        y-= self.map.info.origin.position.y
+        xIndex = (int)(x/self.map.info.resolution)
+        yIndex = (int)(y/self.map.info.resolution)
+        expansionSize = (int)(radius/self.map.info.resolution)
+
+        for xMod in range(-1* expansionSize,expansionSize+1):
+            for yMod in range(-1* expansionSize,expansionSize+1):
+                if(not (xMod==0 and yMod==0)):
+                    if self.map.data[int(yMod*self.map.info.width + xMod)] >= 1:
+                        return True
+
+        return False
+
     def create_trej_gens(self,vel):
         '''
         ruturns array of labels,generators,and array of time of flights
@@ -342,6 +362,7 @@ class TrajectoryPlanner:
         self.collision_time = msg
 
     def mapper_callback(self,msg):
+        self.map = msg
         self.ogrid = np.array(msg.data).reshape((msg.info.height, msg.info.width))
         self.ogrid_origin = np.array([msg.info.origin.position.x, msg.info.origin.position.y])
         #self.high_x,self.high_y = self.ogrid.shape
