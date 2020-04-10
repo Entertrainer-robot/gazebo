@@ -1,5 +1,7 @@
 <launch>
   <arg name="nav_mode" default="$(env NAV_MODE)" doc="nav_mode [true for nav, false for exploration]"/>
+  <arg name="open_rviz" default="true"/>
+
   <!-- Load up the Environment -->
   <include file="$(find entertrainer_test)/launch/entertrainer_house.launch" />
 
@@ -39,5 +41,10 @@
 
  <node name="trajectory_planner" pkg = "entertrainer_traj_planner" type="entertrainer_traj_planner" output="screen"/>
 
+ <!-- rviz -->
+ <group if="$(arg open_rviz)">
+   <node pkg="rviz" type="rviz" name="rviz" required="true"
+         args="-d $(find entertrainer_test)/rviz/entertrainer_rviz.rviz"/>
+ </group>
 
 </launch>

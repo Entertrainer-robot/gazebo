@@ -1,0 +1,11 @@
+#Bug List
+1) (Lan) fix Traj planner with function to check nearby occupancy
+->1a) Goal Point somehow appears out of bounds
+->1b) Goal Point is outside of house
+->1c) Goal Point is within obstacles
+
+# Improvements
+1) Build new house
+2) Make Dog Move (gather Balls?)
+3) Update trajectory planner to check ground impact point to make sure map is clear
+4) (Lan) to update collision checker for 3 inches in Point Cloud (or something along those lines) to refine the collision detection
