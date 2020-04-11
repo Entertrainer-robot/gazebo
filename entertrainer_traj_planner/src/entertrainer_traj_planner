@@ -56,8 +56,8 @@ class TrajectoryPlanner:
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        self.high_x,self.high_y = 10,10
-        self.low_x,self.low_y = -10,-10
+        self.high_x,self.high_y = 7,5
+        self.low_x,self.low_y = -7,0
         #------ Launcher Properties
         #Load the flight model
         self.FM1 =Flight_Model_1()
@@ -121,9 +121,10 @@ class TrajectoryPlanner:
 #
 #		return Point(x,y,0)
     # x,y is the checking point in m
-    # radius is in m, please limit the radius within o.2m, # of cells checked goes up exponentially 
-    # return Truefor collision 
+    # radius is in m, please limit the radius within o.2m, # of cells checked goes up exponentially
+    # return Truefor collision
     def map_obstacle_checking(self,x,y,radius):
+
         x -= self.map.info.origin.position.x
         y-= self.map.info.origin.position.y
         xIndex = (int)(x/self.map.info.resolution)
@@ -133,7 +134,7 @@ class TrajectoryPlanner:
         for xMod in range(-1* expansionSize,expansionSize+1):
             for yMod in range(-1* expansionSize,expansionSize+1):
                 if(not (xMod==0 and yMod==0)):
-                    if self.map.data[int(yMod*self.map.info.width + xMod)] >= 1:
+                    if self.map.data[int(yMod*self.map.info.width + xMod)] >= 1 or self.map.data[int(yMod*self.map.info.width + xMod)] < 0:
                         return True
 
         return False
@@ -277,8 +278,17 @@ class TrajectoryPlanner:
             _toc = rospy.get_time()
 
             # Generate random points on map to launch from
-            x = np.random.uniform(self.low_x,self.high_x)
-            y = np.random.uniform(self.low_y,self.high_y)
+            x = 0
+            y = 0
+            valid_new_position = False
+            iteration = 0
+            while(not valid_new_position and iteration < 100):
+                x = np.random.uniform(self.low_x,self.high_x)
+                y = np.random.uniform(self.low_y,self.high_y)
+                radius = 2
+                valid_new_position = not self.map_obstacle_checking(x, y, radius)
+                print("Checking", x, y, radius, valid_new_position)
+                iteration += 1
 
             # Reset the local orientation
             self.ori_local = 0.0
