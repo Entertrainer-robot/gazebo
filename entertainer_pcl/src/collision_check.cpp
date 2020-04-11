@@ -18,13 +18,13 @@
 class collision_checker
 {
   public:
-  // NodeHandle 
+  // NodeHandle
   ros::NodeHandle n;
 
   // publisher for the collision checking result
   ros::Publisher collision_pub = n.advertise<std_msgs::Bool>("collision_check", 100);
 
-  // publisher for the collision occurance time 
+  // publisher for the collision occurance time
   ros::Publisher collision_time_pub = n.advertise<std_msgs::Int32>("collision_time", 100);
 
   // subscriber for point cloud input
@@ -35,13 +35,13 @@ class collision_checker
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr point_cloud;
 
-  // callback function for receiving the point cloud  
+  // callback function for receiving the point cloud
   void pointCloudCallback(const sensor_msgs::PointCloud2ConstPtr& input_cloud)
   {
-    // the current input point cloud 
+    // the current input point cloud
     point_cloud.reset(new pcl::PointCloud<pcl::PointXYZ>);
 
-    // conversion to PCL point cloud 
+    // conversion to PCL point cloud
     pcl::PCLPointCloud2 input_cloud_pc2;
     pcl_conversions::toPCL(*input_cloud,input_cloud_pc2);
     pcl::fromPCLPointCloud2(input_cloud_pc2,*point_cloud);
@@ -49,7 +49,7 @@ class collision_checker
   }
 
 
-  // callback function for receiving the trajectory to check collision 
+  // callback function for receiving the trajectory to check collision
   void trajectoryCallback(const geometry_msgs::PoseArrayConstPtr& trajectory)
   {
     if(point_cloud->size()>1)
@@ -62,33 +62,33 @@ class collision_checker
       pass.setFilterLimits (-0.1, 0.1);
       pass.filter (*plane_cloud);
 
-      // create KD Tree 
-      pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;   
+      // create KD Tree
+      pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
       kdtree.setInputCloud (plane_cloud);
 
       // set search parameters
-      float radius = 0.1; 
+      float radius = 0.1;
       std_msgs::Bool result;
       std_msgs::Int32 collision_time;
       result.data = false;
-    
+
       // search through th trajectory, checking for collisions
       for(int i = 0; i < trajectory->poses.size(); i++)
       {
         // create search point
         pcl::PointXYZ searchPoint;
-        searchPoint.x = trajectory->poses[i].position.x;
-        searchPoint.y = trajectory->poses[i].position.y;
+        searchPoint.x = trajectory->poses[i].position.y;
+        searchPoint.y = 0;
         searchPoint.z = trajectory->poses[i].position.z;
 
         // setup search function
         std::vector<int> pointIdxRadiusSearch;
         std::vector<float> pointRadiusSquaredDistance;
 
-        // search 
+        // search
         if(kdtree.radiusSearch (searchPoint, radius, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0)
   	    {
-	        // publish collision = true 
+	        // publish collision = true
 	        result.data = true;
                 collision_time.data = i;
 		collision_time_pub.publish(collision_time);
@@ -96,7 +96,7 @@ class collision_checker
 	        break;
   	    }
       }
-  
+
     // publish collision = false
     if(result.data == false)
       {
@@ -106,7 +106,7 @@ class collision_checker
       }
     }
   }
-  
+
 };
 
 
@@ -115,12 +115,10 @@ int main(int argc, char **argv)
 {
   // init
   ros::init(argc, argv, "collision_check");
-  
-  collision_checker cc; 
+
+  collision_checker cc;
 
   ros::spin();
 
   return 0;
 }
-
-

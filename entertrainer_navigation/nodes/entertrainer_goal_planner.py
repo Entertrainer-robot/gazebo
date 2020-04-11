@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#from tf.transformations import quaternion_from_euler
+from tf.transformations import quaternion_from_euler
 import rospy
 from nav_msgs.msg import OccupancyGrid
 from move_base_msgs.msg import MoveBaseActionResult
@@ -13,7 +13,7 @@ import copy
 
 import numpy as np
 
-debug_position = True
+debug_position = False
 
 class FrontierExplorer:
 	def __init__(self):#constructor
@@ -49,14 +49,14 @@ class FrontierExplorer:
 
 		updated_point = Point(point.x,point.y,0)
 		if(debug_position): rospy.loginfo('Goal Point Position is' + str(point.x) +' '+ str(point.y) +' '+ str( point.z))
-		#updated_quaternion = tf.transformations.quaternion_from_euler(0, 0, (self.robot_theta + point.z) % 2*math.pi)
-
+		updated_quaternion = tf.transformations.quaternion_from_euler(0, 0, (self.robot_theta + point.z) % 2*math.pi)
+		print(updated_quaternion)
 		pStamped = PoseStamped()
 		header = Header()
 		header.stamp = rospy.Time.now()
 		header.frame_id = 'map'
 		pStamped.header = header
-		pStamped.pose.orientation = Quaternion(0,0,0,1)
+		pStamped.pose.orientation = Quaternion(updated_quaternion[0], updated_quaternion[1], updated_quaternion[2], updated_quaternion[3])
 		pStamped.pose.position = updated_point
 
 		self.goalPub.publish(pStamped)

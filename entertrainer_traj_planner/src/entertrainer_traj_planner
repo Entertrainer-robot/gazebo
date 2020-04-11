@@ -10,8 +10,9 @@ import numpy as np
 from physics_model import Flight_Model_1
 from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32, Int32MultiArray
 from nav_msgs.msg import OccupancyGrid, Path
-from sensor_msgs.msg import Image, CompressedImage
+from sensor_msgs.msg import Image, CompressedImage, LaserScan
 from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Twist
+
 
 class TrajectoryPlanner:
     '''
@@ -30,7 +31,9 @@ class TrajectoryPlanner:
             rospy.init_node('EntertrainerTrajectoryPlanner')
             #publishers
             self.traj_pos_traj = rospy.Publisher('traj_pos_traj', String, queue_size=10)
-            self.traj_arc_path = rospy.Publisher('traj_arc_path', PoseArray, queue_size=10)
+            self.traj_arc_path = rospy.Publisher('Traj_arc_path', PoseArray, queue_size=10)
+            self.traj_arc_path_world = rospy.Publisher('Traj_arc_path_world', PoseArray, queue_size=10)
+
             self.traj_lnchr_cmd = rospy.Publisher('traj_lnchr_cmd', Float64MultiArray, queue_size=10)
             self.traj_twist_cmd = rospy.Publisher('traj_twist_cmd', Float64, queue_size=10)
             self.navigation_goal = rospy.Publisher('/navigation_goal', Point, queue_size=10)
@@ -41,10 +44,11 @@ class TrajectoryPlanner:
             self.collision_check_sub = rospy.Subscriber("/collision_check", Bool, self.collision_check_callback)
             self.collision_time_sub = rospy.Subscriber("/collision_time", Int32, self.collision_time_callback)
             self.navigation_status_sub = rospy.Subscriber("/navigation_status", Bool, self.navigation_status_callback)
+            self.lidar_scanner_sub = rospy.Subscriber("/scan", LaserScan, self.lidar_scan_callback)
 
         #Get run properties
         self.run_function = False
-        self.run_delay = 10
+        self.run_delay = 100
         self.nav_status = False
 
         #------ Mapper Properties
@@ -90,6 +94,8 @@ class TrajectoryPlanner:
         #tennis ball mass (g)
         self.tMass = 49.8
 
+        # Store the lidar data
+        self.lidar = None
         # self.objrec = obj_rec.Object_Recognition()
 
         # self.image = None
@@ -134,7 +140,7 @@ class TrajectoryPlanner:
         for xMod in range(-1* expansionSize,expansionSize+1):
             for yMod in range(-1* expansionSize,expansionSize+1):
                 if(not (xMod==0 and yMod==0)):
-                    if self.map.data[int(yMod*self.map.info.width + xMod)] >= 1 or self.map.data[int(yMod*self.map.info.width + xMod)] < 0:
+                    if self.map.data[int((yIndex+yMod)*self.map.info.width + (xIndex+xMod))] >= 1 or self.map.data[int((yIndex+yMod)*self.map.info.width + (xIndex+xMod))] < 0:
                         return True
 
         return False
@@ -163,18 +169,35 @@ class TrajectoryPlanner:
         placeholder function to get dead reckoning linear distance infront of
         the robot
         '''
-        dx = x
-        dy = y
-        counter = 0
-        while counter < int(self.high_x+self.high_y) :
-            dx+=int(np.round(np.cos(self.ori_local)*1))
-            dy+=int(np.round(np.sin(self.ori_local)*1))
+        #dx = x
+        #dy = y
+        #counter = 0
+        #while counter < int(self.high_x+self.high_y) :
+    #        dx+=int(np.round(np.cos(self.ori_local)*1))
+#            dy+=int(np.round(np.sin(self.ori_local)*1))
+
             #Check to stay within bounds
-            if dx > self.high_x-1 or dy > self.high_y-1 or dx < 0 or dy < 0 or self.ogrid[dx][dy] >0:
-                return np.sqrt((dx-x)**2+(dy-y)**2)*0.05
-            else:
-                counter+=1
-        return False
+#            if dx > self.high_x-1 or dy > self.high_y-1 or dx < 0 or dy < 0 or self.ogrid[int(dx)][int(dy)] >0:
+#                return np.sqrt((dx-x)**2+(dy-y)**2)*0.05
+#            else:
+#                counter+=1
+#        return False
+        if(self.lidar != None):
+            start = self.lidar.angle_min
+            inc = self.lidar.angle_increment
+            cnt = 0
+
+            if(start != 0):
+                angle = start
+                while  0 != angle and 0 != int(angle*10**5):
+                    if float(angle) > np.pi*2:
+                        angle = 0
+                    angle += inc
+                    cnt +=1
+            if(cnt <= len(self.lidar.ranges)):
+                return self.lidar.ranges[0]
+
+        return 0.05
 
     def check_collision(self, pose_list):
         '''
@@ -185,12 +208,17 @@ class TrajectoryPlanner:
 
         tic = rospy.get_time() #Send data to pcl module, wait 5 seconds for a response
         pcl_check = False
+        #pose_list_world
+
+        #self.traj_arc_path_world.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list_world))
         while toc-tic<self.max_time: #while elapsed time is less than the max time
             #time elapsed
             toc = rospy.get_time()
             #publish the trajectory
-            self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = ''),poses =pose_list))
+            self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = 'base_footprint'),poses =pose_list))
+
             if self.is_collision: #there is a collision
+
                 pcl_check = True
         return pcl_check
 
@@ -211,6 +239,7 @@ class TrajectoryPlanner:
         vel = self.FM1.calc_lnch_vel(dist,self.lnchr_angle)
 
         #generate trajectories
+        #print("Calc Tracjector Velocity =" + str(vel) + " is required when the angle of launcher is " + str(self.lnchr_angle))
         traj_gens = self.create_trej_gens(vel)
 
         #While attempting to get a trajectory/
@@ -231,6 +260,7 @@ class TrajectoryPlanner:
             pcl_check = self.check_collision(pose_list)
 
             #if the trajectory checker is good, break the loop
+
             if (pcl_check != True):
                 return [True, traj_gens[0][traj_index],vel,launch_impulse]
 
@@ -262,7 +292,7 @@ class TrajectoryPlanner:
 
         # Main operating loop
         while True:
-
+            #print("Top of While True" + str(rospy.get_time()))
             # If roscore is not shutdown, break the loop
             if rospy.is_shutdown():
                 # Check to see if roscore is running
@@ -278,6 +308,7 @@ class TrajectoryPlanner:
             _toc = rospy.get_time()
 
             # Generate random points on map to launch from
+            #print("Generating random points" + str(rospy.get_time()))
             x = 0
             y = 0
             valid_new_position = False
@@ -285,11 +316,25 @@ class TrajectoryPlanner:
             while(not valid_new_position and iteration < 100):
                 x = np.random.uniform(self.low_x,self.high_x)
                 y = np.random.uniform(self.low_y,self.high_y)
-                radius = 2
+                radius = 0.5
                 valid_new_position = not self.map_obstacle_checking(x, y, radius)
-                print("Checking", x, y, radius, valid_new_position)
+                #print("Checking", x, y, radius, valid_new_position)
                 iteration += 1
+            if(not valid_new_position):
+                x = -3
+                y = 1
 
+            #good_points = []
+            #for x2 in range(self.low_x, self.high_x):
+        #        for y2 in range(self.low_x, self.high_x):
+    #                r2 = 0.16
+#                    collision = self.map_obstacle_checking(x2, y2, r2)
+                    #print("Is there a collition at " +  str(x2) + ", " + str(y2) + " with raidus " + str(r2) + " The answer is " +("yes" if collision else "No"))
+                    #if(not collision):
+                #        good_points.append([x2, y2, r2])
+            #print("Good points")
+            #print(good_points)
+            #input()
             # Reset the local orientation
             self.ori_local = 0.0
 
@@ -302,23 +347,24 @@ class TrajectoryPlanner:
 
             # Publish nav points
             self.navigation_goal.publish(x = x, y = y, z = self.ori_local)
-
+            self.nav_status = False
             #while elapsed time is less than the max time
+            #print("Right before tic toc while" + str(rospy.get_time()))
             while _toc-_tic < self.run_delay:
-
+                #print("Toc-tic = " + str((_toc - _tic)) + "Compared to delay of (<)" + str(self.run_delay) + "And nav status = " + str(self.nav_status) + " at time " + str(rospy.get_time()))
                 if self.nav_status is False:
                     pass
 
                 else:
                     #while we have not turned in a full circle
                     while counter<= 360//self.turn_rbt:
-
+                        #print("Twisting the robot counter = " + str(counter) + " at time " + str(rospy.get_time()))
                         # Publish nav points
                         self.navigation_goal.publish(x = x, y = y, z = self.ori_local)
 
                         #Query a random range from the map or range finder
                         d = self.dist_trace_from_map(x= x, y = y)
-
+                        #print("Checking distance" + str(x) + " " + str(y) + " = " + str(d))
                         #If the distance is greator than the max range, set the distance equal to max range
                         if d>self.MAX_RANGE_X:
                             d = self.MAX_RANGE_X
@@ -362,14 +408,18 @@ class TrajectoryPlanner:
         self.balls_loaded = int(msg.data[1])
 
     def collision_check_callback(self,msg):
-        self.is_collision = msg
+        #print("Just got a new Collision value of " + str(msg))
+        self.is_collision = msg.data
 
     def navigation_status_callback(self,msg):
         self.nav_status = msg.data
-        print(self.nav_status)
+        #print(self.nav_status)
 
     def collision_time_callback(self,msg):
         self.collision_time = msg
+
+    def lidar_scan_callback(self, msg):
+        self.lidar = msg
 
     def mapper_callback(self,msg):
         self.map = msg
@@ -385,9 +435,11 @@ class TrajectoryPlanner:
 
         msg = Pose()
         msg.position.x, msg.position.y, msg.position.z = state
+        #print("Packing x, y, z " + str(msg.position.x) + ", " +str(msg.position.y) + ", " +str(msg.position.z))
         return msg
 
 if __name__ == '__main__':
     TP = TrajectoryPlanner()
+    rospy.sleep(20)
     TP.trajectory_main(rate = 10)
     rospy.spin()

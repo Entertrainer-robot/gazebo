@@ -1,8 +1,6 @@
 #Bug List
-1) (Lan) fix Traj planner with function to check nearby occupancy
-->1a) Goal Point somehow appears out of bounds
-->1b) Goal Point is outside of house
-->1c) Goal Point is within obstacles
+1) Tennis balls appear to not launch with as much force
+2) Trajectory posearray is of Time, X, Z, and really that isn't what we want in RVIZ, we want XYZ, so, I need to publish a new xyz.  
 
 # Improvements
 1) Build new house

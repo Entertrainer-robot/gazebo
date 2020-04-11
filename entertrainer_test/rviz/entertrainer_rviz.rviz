@@ -8,12 +8,12 @@ Panels:
         - /TF1/Tree1
         - /Global Map1/Costmap1
         - /Global Map1/Planner1
-        - /Local Map1
         - /Local Map1/Polygon1
         - /Local Map1/Costmap1
         - /Local Map1/Planner1
         - /Camera1
         - /Camera1/Visibility1
+        - /PoseArray1
       Splitter Ratio: 0.5
     Tree Height: 297
   - Class: rviz/Selection
@@ -363,10 +363,27 @@ Visualization Manager:
           Value: false
         Map: false
         Planner Plan: true
+        PoseArray: true
         RobotModel: false
         TF: true
         Value: true
       Zoom Factor: 1
+    - Alpha: 1
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /Traj_arc_path
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
