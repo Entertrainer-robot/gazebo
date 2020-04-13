@@ -7,3 +7,5 @@
 2) Make Dog Move (gather Balls?)
 3) Update trajectory planner to check ground impact point to make sure map is clear
 4) (Lan) to update collision checker for 3 inches in Point Cloud (or something along those lines) to refine the collision detection
+5) Update RVIZ to have the trajectory
+6) Update RVIZ to have the point cloud data
