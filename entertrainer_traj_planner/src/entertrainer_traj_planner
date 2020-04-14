@@ -199,7 +199,7 @@ class TrajectoryPlanner:
 
         return 0.05
 
-    def check_collision(self, pose_list):
+    def check_collision(self, pose_list, pose_list_world):
         '''
         '''
         #timer values
@@ -216,6 +216,7 @@ class TrajectoryPlanner:
             toc = rospy.get_time()
             #publish the trajectory
             self.traj_arc_path.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = 'base_footprint'),poses =pose_list))
+            self.traj_arc_path_world.publish(PoseArray(header = Header(stamp=rospy.Time.now(),frame_id = 'base_footprint'),poses =pose_list_world))
 
             if self.is_collision: #there is a collision
 
@@ -251,13 +252,18 @@ class TrajectoryPlanner:
 
             #generate the trajectory as a list of poses.
             pose_list = []
+            pose_list_world = []
             for _ in range(0,int(np.max(traj_gens[2])*100)+1):
                 pose_list.append(self.pack_pose(next(traj_gen)))
+                p = next(traj_gen)
+                #print(p)
+                p_world = [p[1], 0, p[2]]
+                pose_list_world.append(self.pack_pose(p_world))
 
             launch_impulse = self.FM1.calc_launch_impulse(dist = dist,theta = angle)*0.1
 
             #check for collisions ~takes up to 5 seconds
-            pcl_check = self.check_collision(pose_list)
+            pcl_check = self.check_collision(pose_list, pose_list_world)
 
             #if the trajectory checker is good, break the loop
 

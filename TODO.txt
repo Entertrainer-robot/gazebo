@@ -1,6 +1,7 @@
 #Bug List
 1) Tennis balls appear to not launch with as much force
-2) Trajectory posearray is of Time, X, Z, and really that isn't what we want in RVIZ, we want XYZ, so, I need to publish a new xyz.  
+2) Trajectory posearray is of Time, X, Z, and really that isn't what we want in RVIZ, we want XYZ, so, I need to publish a new xyz.
+3) Looks like if the trajectory goes over the point cloud it is valid...
 
 # Improvements
 1) Build new house
@@ -9,3 +10,7 @@
 4) (Lan) to update collision checker for 3 inches in Point Cloud (or something along those lines) to refine the collision detection
 5) Update RVIZ to have the trajectory
 6) Update RVIZ to have the point cloud data
+
+
+# Notes
+The camera feed axis is super twisted and Chris is strugginle
