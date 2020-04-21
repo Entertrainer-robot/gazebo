@@ -66,7 +66,7 @@ class TrajectoryPlanner:
         #Load the flight model
         self.FM1 =Flight_Model_1()
         #Max velocity produces by the launcher
-        self.max_vel = 15 #m/s
+        self.max_vel = 6.7056 #m/s
         #Max force produced by the launcher
         self.max_force =  3.33 #(newtons)
         #energy threshold not to exceed
