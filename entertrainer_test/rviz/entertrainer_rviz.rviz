@@ -7,10 +7,10 @@ Panels:
         - /TF1/Frames1
         - /TF1/Tree1
         - /Global Map1
-        - /Camera1
         - /Camera1/Visibility1
+        - /Axes1
       Splitter Ratio: 0.5
-    Tree Height: 781
+    Tree Height: 500
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -109,6 +109,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        depth_tf_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         imu_link:
           Alpha: 1
           Show Axes: false
@@ -413,6 +417,7 @@ Visualization Manager:
       Value: true
       Visibility:
         Amcl Particles: false
+        Axes: false
         DepthCloud: true
         Global Map:
           Costmap: true
@@ -430,11 +435,49 @@ Visualization Manager:
           Value: false
         Map: false
         Planner Plan: true
+        PointCloud2: false
         PoseArray: false
         RobotModel: false
         TF: true
         Value: true
       Zoom Factor: 1
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /camera/depth/points_tf
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz/Axes
+      Enabled: false
+      Length: 1
+      Name: Axes
+      Radius: 0.10000000149011612
+      Reference Frame: depth_tf_frame
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -458,33 +501,38 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: -1.5707963705062866
-      Class: rviz/TopDownOrtho
+      Class: rviz/ThirdPersonFollower
+      Distance: 10.694086074829102
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
+      Focal Point:
+        X: -3.94673490524292
+        Y: 3.179257869720459
+        Z: 7.435298812197288e-7
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 52.2646484375
+      Pitch: 0.5447968244552612
       Target Frame: <Fixed Frame>
-      Value: TopDownOrtho (rviz)
-      X: 2.9755709171295166
-      Y: 0.7565298676490784
+      Value: ThirdPersonFollower (rviz)
+      Yaw: 2.525402545928955
     Saved: ~
 Window Geometry:
   Camera:
     collapsed: false
   Displays:
-    collapsed: true
-  Height: 1025
-  Hide Left Dock: true
-  Hide Right Dock: true
+    collapsed: false
+  Height: 1052
+  Hide Left Dock: false
+  Hide Right Dock: false
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000024c000003a7fc0200000007fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073000000003d000003a7000000c900fffffffb0000000a0049006d00610067006500000001ef000000cc0000001600fffffffb0000000a0049006d0061006700650000000330000000ce0000000000000000000000010000010f000003a0fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000043000003a0000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000002730000012efc0100000002fb0000000c00430061006d0065007200610100000000000002730000006900fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a0000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000002730000027300000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000004000000000000024c0000028efc0200000007fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c00610079007301000001710000028e000000c900fffffffb0000000a0049006d00610067006500000001ef000000cc0000001600fffffffb0000000a0049006d0061006700650000000330000000ce0000000000000000000000010000010f0000028efc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a0056006900650077007301000001710000028e000000a400fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b2000000000000000000000002000007800000012efc0100000002fb0000000c00430061006d0065007200610100000000000007800000006900fffffffb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a0000002eb00fffffffb0000000800540069006d00650100000000000004500000000000000000000004190000028e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Time:
@@ -492,7 +540,7 @@ Window Geometry:
   Tool Properties:
     collapsed: false
   Views:
-    collapsed: true
-  Width: 627
-  X: 67
-  Y: 27
+    collapsed: false
+  Width: 1920
+  X: 0
+  Y: 0

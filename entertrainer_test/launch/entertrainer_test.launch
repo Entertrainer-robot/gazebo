@@ -17,6 +17,12 @@
 
   <!-- Load up the Test Node -->
   <!--<node name="test_ball" pkg="entertrainer_test" type="test_ball" output="screen" />-->
+  <node name="transforms_data" pkg="entertrainer_test" type="transform_data" output="screen" />
+  <!--<node pkg="tf" type="tf_remap" name="tf_remapper" output="screen">
+    <rosparam param="mappings">
+      [{old: camera_rgb_optical_frame, new: depth_tf_frame}]
+    </rosparam>
+  </node>-->
 
  <node name="test" pkg="entertrainer_test" type="test" output="screen" />
 

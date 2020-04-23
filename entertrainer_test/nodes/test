@@ -7,6 +7,11 @@ import matplotlib as mp
 import matplotlib.pyplot as plt
 from math import *
 
+#from tf2_sensor_msgs import do_transform_cloud
+from sensor_msgs import point_cloud2
+#from tf2_ros import TransformStamped
+from sensor_rotate import *
+
 from gazebo_ros.gazebo_interface import spawn_sdf_model_client
 from std_msgs.msg import String, Header, Float64MultiArray, Float64, Bool, Int32
 from gazebo_msgs.msg import ModelState
@@ -41,8 +46,24 @@ class BasicEntertrainerController(object):
         self.get_model_state = None
         self.ball_launcher = BallLauncher()
 
+        #self.pt_cloud = rospy.Subscriber("/camera/depth/points", point_cloud2.PointCloud2, self.procoess_point_cloud)
+        #self.pt_cloud_tf = rospy.Publisher("/camera/depth/points_tf", point_cloud2.PointCloud2, queue_size=10)
+
         if(rate != 0):
             update_timer = rospy.Timer(rospy.Duration(rate), self.basic_movement)
+    def procoess_point_cloud(self, cloud_in):
+        transform = transform_state()
+        transform.x = 0
+        transform.y = 0
+        transform.z = 0
+
+        [x, y, z, w] = calc_quaternion_from_euler(0,0,0)
+        transform.rx = x
+        transform.ry = y
+        transform.rz = z
+        transform.rw = w
+        cloud_out = do_transform_cloud(cloud_in, transform)
+        self.pt_cloud_tf.publish(cloud_out)
 
     def get_proxy_handles(self):
         if self.get_world_properties is None:

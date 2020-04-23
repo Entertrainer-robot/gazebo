@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+
+import rospy
+
+from sensor_msgs import point_cloud2
+from math import *
+from rotation import *
+
+class TransformData(object):
+
+    def __init__(self, rate=0):
+        print("Creating object TransformData Controller")
+        if(rate != 0):
+            rospy.init_node('entertrainer_transforms', log_level=rospy.INFO)
+
+        self.pt_cloud = rospy.Subscriber("/camera/depth/points", point_cloud2.PointCloud2, self.process_point_cloud)
+        self.pt_cloud_tf = rospy.Publisher("/camera/depth/points_tf", point_cloud2.PointCloud2, queue_size=10)
+
+    def process_point_cloud(self, cloud_in):
+        cloud_out = cloud_in
+        cloud_out.header.frame_id = "depth_tf_frame"
+        self.pt_cloud_tf.publish(cloud_out)
+
+if __name__ == '__main__':
+    try:
+        print("Starting Program")
+        b = TransformData(0.01)
+        rospy.spin()
+
+    except rospy.ROSInterruptException:
+        pass

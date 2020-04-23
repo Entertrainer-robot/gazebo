@@ -10,6 +10,18 @@
 
   <link name="base_footprint"/>
 
+  <joint name="depth_tf" type="fixed">
+    <!--red  X axis,
+          green is Y,
+            blue is Z-->
+    <origin xyz="0 0 0.1" rpy="-1.57 0 -1.57"/>
+<!--    <origin xyz="0 2 0.1" rpy="-1.57 1.57 -1.57"/>
+-->
+    <parent link="base_footprint"/>
+    <child link="depth_tf_frame"/>
+  </joint>
+  <link name="depth_tf_frame"/>
+
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link" />

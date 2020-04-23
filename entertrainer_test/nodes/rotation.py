@@ -72,3 +72,20 @@ def calc_euler_from_quaternion(q):
     yaw = atan2(siny_cosp, cosy_cosp)
 
     return [roll, pitch, yaw]
+
+
+def calc_quaternion_from_euler(yaw, pitch, roll): # yaw (Z), pitch (Y), roll (X)
+    # Abbreviations for the various angular functions
+    cy = cos(yaw * 0.5);
+    sy = sin(yaw * 0.5);
+    cp = cos(pitch * 0.5);
+    sp = sin(pitch * 0.5);
+    cr = cos(roll * 0.5);
+    sr = sin(roll * 0.5);
+
+    w = cr * cp * cy + sr * sp * sy;
+    x = sr * cp * cy - cr * sp * sy;
+    y = cr * sp * cy + sr * cp * sy;
+    z = cr * cp * sy - sr * sp * cy;
+
+    return [x, y, z, w]
