@@ -28,7 +28,7 @@ class collision_checker
   ros::Publisher collision_time_pub = n.advertise<std_msgs::Int32>("collision_time", 100);
 
   // subscriber for point cloud input
-  ros::Subscriber point_cloud_sub = n.subscribe("/camera/depth/points", 1, &collision_checker::pointCloudCallback, this);
+  ros::Subscriber point_cloud_sub = n.subscribe("/camera/depth/points_tf", 1, &collision_checker::pointCloudCallback, this);
 
   // subscriber for trajectory input
   ros::Subscriber trajectory_sub = n.subscribe("/Traj_arc_path", 1, &collision_checker::trajectoryCallback, this);

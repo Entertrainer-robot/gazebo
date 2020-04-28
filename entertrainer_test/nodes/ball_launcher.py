@@ -124,6 +124,8 @@ class BallLauncher():
 
     def process_ball_launcher_command(self, msg):
         angle, vel, energy, impulse = msg.data
+        print("Ball Launcher Command ", msg.data)
+
         self.launcher_angle = angle
         self.impulse_force = impulse
         #self.launcher_angle_pub.publish(data = float(self.launcher_angle))
@@ -155,8 +157,10 @@ class BallLauncher():
                     #resp = self.set_model_state( state_msg )
                     #rospy.loginfo('Setting Ball Position ='+ str(state_msg.pose.position.x) +' '+ str(state_msg.pose.position.y) +' '+ str( state_msg.pose.position.z) + ' Repsonse = ' + str(resp))
                     #force_lbs = 0.7493 #7.2
-                    force_lbs = self.impulse_force #
-                    force_n = force_lbs * 4.44822 # neuton
+                    #force_lbs = self.impulse_force #
+                    force_n =  self.impulse_force # neuton
+                    #force_lbs = self.impulse_force #
+                    #force_n = force_lbs * 4.44822 # neuton
                     self.activate_launcher(self.balls[ball_in_launcher], robot_euler_angles, force_n)
                     model_state = self.get_model_state(self.balls[ball_in_launcher].name, "")
                     self.launch_ball = False

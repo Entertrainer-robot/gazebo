@@ -60,8 +60,11 @@ class TrajectoryPlanner:
         #Need to wait here for the map to populate,
         print('Waiting {} seconds to complete start up...'.format(wait_timer))
         time.sleep(wait_timer)
-        self.high_x,self.high_y = 7,5
-        self.low_x,self.low_y = -7,0
+        self.high_x,self.high_y = -6.35,3.7
+        self.low_x,self.low_y = -6.4,3.1
+        #self.high_x,self.high_y = 7,5
+        #self.low_x,self.low_y = -7,0
+
         #------ Launcher Properties
         #Load the flight model
         self.FM1 =Flight_Model_1()
@@ -195,7 +198,7 @@ class TrajectoryPlanner:
                     angle += inc
                     cnt +=1
             if(cnt <= len(self.lidar.ranges)):
-                return self.lidar.ranges[0]
+                return self.lidar.ranges[cnt]
 
         return 0.05
 
@@ -370,7 +373,7 @@ class TrajectoryPlanner:
 
                         #Query a random range from the map or range finder
                         d = self.dist_trace_from_map(x= x, y = y)
-                        #print("Checking distance" + str(x) + " " + str(y) + " = " + str(d))
+                        print("Checking distance" + str(x) + " " + str(y) + " = " + str(d))
                         #If the distance is greator than the max range, set the distance equal to max range
                         if d>self.MAX_RANGE_X:
                             d = self.MAX_RANGE_X

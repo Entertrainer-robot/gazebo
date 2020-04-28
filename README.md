@@ -15,7 +15,7 @@ Make sure to have the following packages installed
 8) pip install imutils
 9) pip install opencv-python
 10) pip install transformations
-
+11) ros-melodic-visualization-tutorials
 Make sure to also export the turtle model
 run 'export TURTLEBOT3_MODEL=waffle'
 
@@ -50,7 +50,7 @@ We will paraphrase the following link http://wiki.ros.org/catkin/Tutorials/creat
 
 # Install Point Clouds
 http://pointclouds.org/downloads/linux.html
-But there is more, will need to be updated. 
+But there is more, will need to be updated.
 
 
 # Don't think we need this, but leaving this here for the time being.
